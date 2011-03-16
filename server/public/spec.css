@@ -1,0 +1,9 @@
+.failed {
+  color: #900;
+}
+.passed {
+  color: #090;
+}
+.pending {
+  color: #990;
+}

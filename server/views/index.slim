@@ -1,0 +1,11 @@
+doctype html
+head
+  script src="jquery-1.5.js"
+  link rel="stylesheet" href="spec.css" type="text/css"
+  script src="Spec.js"
+  - @scripts.each do |file_name|
+    script src="#{{file_name.sub /\.coffee$/, '.js'}}"
+
+body
+  coffee:
+    $ -> Spec.finalize()

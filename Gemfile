@@ -1,0 +1,7 @@
+source "http://rubygems.org"
+gem "coffee-script"
+gem "json"
+gem "celerity"
+gem "sinatra"
+gem "slim"
+gem "watchr"
