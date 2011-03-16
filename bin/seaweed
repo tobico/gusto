@@ -4,8 +4,8 @@ require 'bundler'
 require 'celerity'
 require 'watchr'
 
-require File.expand_path('../lib/required_files', __FILE__)
-require File.expand_path('../server/server', __FILE__)
+require File.expand_path('../../lib/required_files', __FILE__)
+require File.expand_path('../../server/server', __FILE__)
 require 'net/http'
 
 PORT = 4567
