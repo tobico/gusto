@@ -1,14 +1,18 @@
+# Seaweed Coffeescript spec framework
 window.Spec = {
   EnvironmentInitialized: false
   
+  # Adds &nbsp; indentation to a string
   Pad: (string, times) ->
     for i in [1..times]
       string = '&nbsp;' + string
     string
-    
+  
+  # Escapes text for HTML
   Escape: (string) ->
     $('<div/>').text(String(string)).html()
   
+  # Executes a test case
   describe: (title, definition) ->
     @initializeEnvironment() unless @EnvironmentInitialized
 
@@ -27,7 +31,8 @@ window.Spec = {
     }]
     
     definition()
-    
+  
+  # Displays a summary of error rate at the end of testing
   finalize: ->
     summary = "#{@counts.passed} passed, #{@counts.failed} failed, #{@counts.pending} pending, #{@counts.total} total"
     switch @Format
@@ -50,6 +55,7 @@ window.Spec = {
           32
         $('.results').append "&#x1b;[1m&#x1b;[#{color}m#{summary}&#x1b;[0m<br>"
   
+  # Extends the environment with test methods
   initializeEnvironment: ->
     @EnvironmentInitialized = true
     
@@ -64,20 +70,24 @@ window.Spec = {
     @Format = 'ul'
     @Format = 'terminal' if location.hash == '#terminal'
     
+    # Add results display element to the page
     switch @Format
       when 'ul'
         $('body').append('<ul class="results"></ul>')
       when 'terminal'
         $('body').append('<div class="results"></div>')
     
+    # Tests for a positive match
     Object.prototype.should = (matcher) ->
       result = matcher(this)
       Spec.fail "expected #{result[1]}" unless result[0]
 
+    # Tests for a negative match
     Object.prototype.shouldNot = (matcher) ->
       result = matcher(this)
       Spec.fail "expected not #{result[1]}" if result[0]
-      
+    
+    # Sets up an expectation
     window.expectation = (message) ->
       exp = {
         message:      message
@@ -106,7 +116,8 @@ window.Spec = {
       }
       Spec.expectations.push exp
       exp
-
+    
+    # Creates a stub method with an expectation
     Object.prototype.shouldReceive = (name) ->
       object = this
 
@@ -142,10 +153,12 @@ window.Spec = {
         received
 
       received
-      
+    
+    # Creates a stub method, with an expectation of no calls
     Object.prototype.shouldNotReceive = (name) ->
       @shouldReceive(name).exactly(0).times
     
+    # Allows an assertion on a non-object value
     window.expect = (object) ->
       {
         to: (matcher) ->
@@ -155,11 +168,13 @@ window.Spec = {
           result = matcher(object)
           Spec.fail "expected not #{result[1]}" if result[0]
       }
-      
+    
+    # Adds a setup step to the current test case
     window.beforeEach = (action) ->
       test = Spec.testStack[Spec.testStack.length - 1]
       test.before.push action
     
+    # Prepares a sub-test of the current test case
     window.describe = window.context = (title, definition) ->
       parent = Spec.testStack[Spec.testStack.length - 1]
     
@@ -179,6 +194,7 @@ window.Spec = {
       definition()
       Spec.testStack.pop()
 
+    # Creates a specificaition
     window.it = (title, definition) ->
       test = Spec.testStack[Spec.testStack.length - 1]
       status = if definition?
@@ -228,28 +244,35 @@ window.Spec = {
       
       Spec.counts[status]++
       Spec.counts.total++
-      
+    
+    # Tests if matched value is a function
     window.beAFunction = (value) ->
       [typeof value is 'function', "to have type &ldquo;function&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
     
+    # Tests if matched value === expected value
     window.be = (expected) ->
       (value) ->
         [value is expected, "to be &ldquo;#{Spec.Escape expected}&rdquo;, actual &ldquo;#{Spec.Escape value}&rdquo;"]
-          
+    
+    # Tests if matched value is boolean true
     window.beTrue = (value) ->
       [String(value) == 'true', "to be true, got &ldquo;#{Spec.Escape value}&rdquo;"]
-
+    
+    # Tests if matched value is boolean false
     window.beFalse = (value) ->
       [String(value) == 'false', "to be false, got &ldquo;#{Spec.Escape value}&rdquo;"]
-          
+    
+    # Tests if matched value is an instance of class
     window.beAnInstanceOf = (klass) ->
       (value) ->
         [value instanceof klass, "to be an instance of &ldquo;#{klass}&rdquo;"]
-          
+    
+    # Tests if matched value == expected value
     window.equal = (expected) ->
       (value) ->
         [String(value) == String(expected), "to equal &ldquo;#{Spec.Escape expected}&rdquo;, actual &ldquo;#{Spec.Escape value}&rdquo;"]
-    
+  
+  # Fails test, with an error message
   fail: (message) ->
     @passed = false
     @error = message
@@ -261,7 +284,8 @@ window.Spec = {
       title:    titles.join ' '
       message:  message
     }
-    
+  
+  # Cleans test environment initialized with #initializeEnvironment
   uninitializeEnvironment: ->
     @EnvironmentInitialized = false
     
