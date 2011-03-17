@@ -10,12 +10,13 @@ class RequiredFiles < Hash
   def add name
     file_name = full_path name
     if file_name && !self[name.to_sym]
-      requirements = find_requirements file_name
+      directives = parse_directives file_name
       self[name.to_sym] = {
         :file_name  => file_name,
-        :requires   => requirements
+        :requires   => directives['require']
       }
-      requirements.each { |requirement| add requirement }
+      requested = (directives['require'] | directives['request'])
+      requested.each{ |file| add file }
     end
   end
 
@@ -33,21 +34,24 @@ class RequiredFiles < Hash
       file_path && "#{file_path}/#{name}.coffee"
     end
   
-    # Scans a coffeescript file for requirement directives.
+    # Scans a coffeescript file for #require and #request directives.
     #
     # Example requirement directives:
     #   #require ST
     #   #require ST/Model/Index
-    def find_requirements name
-      requirements = []
+    def parse_directives name
+      directives = {
+        'require' => [],
+        'request' => []
+      }
       File.open name do |file|
         file.each do |line|
-          if line.match /^#require\s+(\S+)\s*$/
-            requirements << $1
+          if line.match /^#(require|request)\s+(\S+)\s*$/
+            directives[$1] << $2
           end
         end
       end
-      requirements
+      directives
     end
   
     # Callback functions for tsort

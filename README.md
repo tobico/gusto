@@ -110,14 +110,23 @@ The `times` at the end is only there for readability, it shouldn't be called wit
 
 `.shouldNotReceive(name)` is syntactic sugar for `.shouldReceive(name).exactly(0).times`.
 
+Requires
+--------
+
+Seaweed automatically loads all of your specs, but loads only the lib files that are required. You will need to specify when one Coffeescript file requires another using the `#require` directive:
+
+    #require models/car
+    
+In this example `models/car` refers to `lib/models/car.coffee`. Coffeescript files are sorted in order by dependency, so `car.coffee` will always be loaded before the script that required it. To cause another script to be loaded without creating a dependency, use `#request` instead of `#require`.
+
 Spec Runner
 -----------
 
 Run specs with the `seaweed` command.
 
-    `seaweed [mode]`
+    jruby -S seaweed [mode]
     
-The default mode is `auto`, which uses watchr to monitor files for changes, and automatically reruns your tests when your code changes.
+The default mode is `auto`, which uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
 
 The `terminal` mode lets you run tests only once, for use with continuous integration tools.
 

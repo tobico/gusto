@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|  
   spec.name = "seaweed"
-  spec.version = '0.1.0'
+  spec.version = '0.1.1'
 
   spec.summary = "Coffeescript testing framework"
   spec.description = "Seaweed is Coffeescript behavioral testing framework, with a command line tool that can be used to run specs automatically."
