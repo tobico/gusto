@@ -79,13 +79,15 @@ window.Spec = {
     
     # Tests for a positive match
     Object.prototype.should = (matcher) ->
-      result = matcher(this)
-      Spec.fail "expected #{result[1]}" unless result[0]
+      if typeof matcher is 'function'
+        result = matcher(this)
+        Spec.fail "expected #{result[1]}" unless result[0]
 
     # Tests for a negative match
     Object.prototype.shouldNot = (matcher) ->
-      result = matcher(this)
-      Spec.fail "expected not #{result[1]}" if result[0]
+      if typeof matcher is 'function'
+        result = matcher(this)
+        Spec.fail "expected not #{result[1]}" if result[0]
     
     # Sets up an expectation
     window.expectation = (message) ->
