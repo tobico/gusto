@@ -12,6 +12,10 @@ module Sinatra
   end
 end
 
+# Configure paths
+set :public, File.dirname(__FILE__) + '/public'
+set :views, File.dirname(__FILE__) + '/views'
+
 # Configure slim for prettier code formatting
 Slim::Engine.set_default_options :pretty => true
 
