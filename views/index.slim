@@ -2,6 +2,8 @@ doctype html
 head
   script src="jquery-1.5.js"
   link rel="stylesheet" href="spec.css" type="text/css"
+  - @js_libs.each do |file_name|
+    script src="js/#{file_name}"
   script src="Spec.js"
   - @scripts.each do |file_name|
     script src="#{{file_name.sub /\.coffee$/, '.js'}}"

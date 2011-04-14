@@ -30,7 +30,7 @@ class RequiredFiles < Hash
     # or nil if not found
     def full_path name
       file_path = @paths.find { |path| File.exists? "#{path}/#{name}.coffee" }
-      raise "File not found: #{name}" unless file_path
+      raise "File not found “#{name}.coffee” in paths “#{@paths.join ','}”" unless file_path
       file_path && "#{file_path}/#{name}.coffee"
     end
   

@@ -1,55 +1,5 @@
 #!/usr/bin/env jruby
-require 'rubygems'
-require 'bundler'
-require 'celerity'
-require 'watchr'
 
-require File.expand_path('../../lib/required_files', __FILE__)
-require File.expand_path('../../server/server', __FILE__)
-require 'net/http'
+require "#{File.dirname(__FILE__)}/../lib/seaweed/runner.rb"
 
-PORT = 4567
-
-app = Rack::Builder.app do
-  run Sinatra::Application
-end
-
-mode = case ARGV.first
-  when 's', 'server'
-    'server'
-  when 't', 'terminal'
-    'terminal'
-  when 'a', 'auto'
-    'auto'
-  else
-    'auto'
-end
-
-if mode == 'server'
-  Rack::Handler.default.run app, :Port => PORT
-else
-  Thread.new do
-    Rack::Handler.default.run app, :Port => PORT
-  end
-
-  begin
-    page = Net::HTTP.get URI.parse("http://localhost:#{PORT}/")
-  rescue Errno::ECONNREFUSED
-    sleep 1
-    retry
-  end
-
-  browser = Celerity::Browser.new
-  browser.goto "http://localhost:#{PORT}/#terminal"
-  puts browser.text
-  
-  if mode == 'auto'
-    script = Watchr::Script.new
-    script.watch(/^(lib|spec)\/.*\.coffee$/) do
-      browser.refresh
-      puts browser.text
-    end
-    controller = Watchr::Controller.new(script, Watchr.handler.new)
-    controller.run
-  end
-end
+Seaweed::Runner.new ARGV.first
