@@ -12,6 +12,39 @@ window.Spec = {
   Escape: (string) ->
     $('<div/>').text(String(string)).html()
   
+  Display: (object) ->
+    if object instanceof Array
+      s = '['
+      first = true
+      for item in object
+        if first
+          first = false
+        else
+          first += ', '
+        s += '&ldquo;' + @Escape(String(item)) + '&rdquo;'
+      s + ']'
+    else if object is null
+      'null'
+    else if object is undefined
+      'undefined'
+    else if object is true
+      'true'
+    else if object is false
+      'false'
+    else if typeof object == 'object'
+      s = "{"
+      first = true
+      for key of object
+        if object.hasOwnProperty key
+          if first
+            first = false
+          else
+            s += ", "
+          s += @Escape(key) + ': &ldquo;' + @Escape(String(object[key])) + '&rdquo;'
+      s + "}"
+    else
+      "&ldquo;#{@Escape(object)}&rdquo;"
+  
   # Executes a test case
   describe: (title, definition) ->
     @initializeEnvironment() unless @EnvironmentInitialized
@@ -250,19 +283,35 @@ window.Spec = {
     # Tests if matched value is a function
     window.beAFunction = (value) ->
       [typeof value is 'function', "to have type &ldquo;function&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+
+    # Tests if matched value is a string
+    window.beAString = (value) ->
+      [typeof value is 'string', "to have type &ldquo;string&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+    
+    # Tests if matched value is a number
+    window.beANumber = (value) ->
+      [typeof value is 'number', "to have type &ldquo;number&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+    
+    # Tests if matched value is a boolean
+    window.beABoolean = (value) ->
+      [typeof value is 'boolean', "to have type &ldquo;boolean&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+    
+    # Tests if matched value is an object
+    window.beAnObject = (value) ->
+      [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
     
     # Tests if matched value === expected value
     window.be = (expected) ->
       (value) ->
-        [value is expected, "to be &ldquo;#{Spec.Escape expected}&rdquo;, actual &ldquo;#{Spec.Escape value}&rdquo;"]
+        [value is expected, "to be #{Spec.Display expected}, actual #{Spec.Display value}"]
     
     # Tests if matched value is boolean true
     window.beTrue = (value) ->
-      [String(value) == 'true', "to be true, got &ldquo;#{Spec.Escape value}&rdquo;"]
+      [String(value) == 'true', "to be true, got #{Spec.Display value}"]
     
     # Tests if matched value is boolean false
     window.beFalse = (value) ->
-      [String(value) == 'false', "to be false, got &ldquo;#{Spec.Escape value}&rdquo;"]
+      [String(value) == 'false', "to be false, got #{Spec.Display value}"]
     
     # Tests if matched value is an instance of class
     window.beAnInstanceOf = (klass) ->
@@ -272,7 +321,28 @@ window.Spec = {
     # Tests if matched value == expected value
     window.equal = (expected) ->
       (value) ->
-        [String(value) == String(expected), "to equal &ldquo;#{Spec.Escape expected}&rdquo;, actual &ldquo;#{Spec.Escape value}&rdquo;"]
+        [String(value) == String(expected), "to equal #{Spec.Display String(expected)}, actual #{Spec.Display String(value)}"]
+    
+    # All-purpose inclusion matcher
+    window.include = (expected) ->
+      if expected instanceof Array
+        (value) ->
+          match = true
+          for test in expected
+            match = false unless (value.indexOf && value.indexOf(test) >= 0) || value[test]?
+          [match, "to include #{Spec.Display expected}, actual #{Spec.Display value}"]
+      else if typeof expected == 'object'
+        (value) ->
+          missing = {}
+          match = true
+          for test of expected
+            if expected.hasOwnProperty test
+              unless value[test] isnt undefined && String(value[test]) == String(expected[test])
+                match = false
+                missing[test] = expected[test]
+          [match, "to include #{Spec.Display expected}, actual #{Spec.Display value}, missing #{Spec.Display missing}"]
+      else
+        include([expected])
   
   # Fails test, with an error message
   fail: (message) ->
@@ -302,9 +372,13 @@ window.Spec = {
     delete window.context
     delete window.it
     delete window.beAFunction
-    delete window.be
+    delete window.beAString
+    delete window.beANumber
+    delete window.beABoolean
+    delete window.beAnObject
     delete window.beTrue
     delete window.beFalse
     delete window.beAnInstanceOf
     delete window.equal
+    delete window.include
 }
