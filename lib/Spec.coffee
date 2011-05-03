@@ -1,6 +1,7 @@
 # Seaweed Coffeescript spec framework
 window.Spec = {
   EnvironmentInitialized: false
+  _extended: []
   
   # Adds &nbsp; indentation to a string
   Pad: (string, times) ->
@@ -35,7 +36,9 @@ window.Spec = {
       s = "{"
       first = true
       for key of object
-        if object.hasOwnProperty key
+        # Access hasOwnProperty through Object.prototype to work around bug
+        # in IE6/7/8 when calling hasOwnProperty on a DOM element
+        if Object.prototype.hasOwnProperty.call(object, key)
           if first
             first = false
           else
@@ -113,18 +116,21 @@ window.Spec = {
       when 'terminal'
         $('body').append('<div class="results"></div>')
     
-    # Tests for a positive match
-    Object.prototype.should = (matcher) ->
-      if typeof matcher is 'function'
-        result = matcher(this)
-        Spec.fail "expected #{result[1]}" unless result[0]
-
-    # Tests for a negative match
-    Object.prototype.shouldNot = (matcher) ->
-      if typeof matcher is 'function'
-        result = matcher(this)
-        Spec.fail "expected not #{result[1]}" if result[0]
+    @extend Array
+    @extend Boolean
+    @extend Date
+    @extend Function
+    @extend Number
+    @extend RegExp
+    @extend String
+    @extend Element
+    @extend jQuery
     
+    window.SpecObject = (object) ->
+      $.extend this, object if object
+      this
+    @extend SpecObject
+        
     # Sets up an expectation
     window.expectation = (message) ->
       exp = {
@@ -154,47 +160,6 @@ window.Spec = {
       }
       Spec.expectations.push exp
       exp
-    
-    # Creates a stub method with an expectation
-    Object.prototype.shouldReceive = (name) ->
-      object = this
-
-      received = expectation "to receive &ldquo;#{name}&rdquo;"
-
-      passthrough = object[name]
-      object[name] = -> received.meet()
-
-      received.with = (expectArgs...) ->
-        object[name] = (args...) ->
-          received.meet()
-          correct = true
-          correct = false if expectArgs.length != args.length
-          if correct
-            for i in [0..args.length]
-              correct = false unless String(expectArgs[i]) == String(args[i])
-          unless correct
-            Spec.fail "expected ##{name} to be called with arguments &ldquo;#{expectArgs.join ', '}&rdquo;, actual arguments: &ldquo;#{args.join ', '}&rdquo;"
-        received
-
-      received.andReturn = (returnValue) ->
-        fn = object[name]
-        object[name] = ->
-          fn.apply this, arguments
-          returnValue
-        received
-      
-      received.andPassthrough = ->
-        fn = object[name]
-        object[name] = ->
-          fn.apply this, arguments
-          passthrough.apply this, arguments
-        received
-
-      received
-    
-    # Creates a stub method, with an expectation of no calls
-    Object.prototype.shouldNotReceive = (name) ->
-      @shouldReceive(name).exactly(0).times
     
     # Allows an assertion on a non-object value
     window.expect = (object) ->
@@ -347,6 +312,75 @@ window.Spec = {
           [match, "to include #{Spec.Display expected}, actual #{Spec.Display value}, missing #{Spec.Display missing}"]
       else
         include([expected])
+    
+    window.haveHtml = (expected) ->
+      (value) ->
+        div = $(document.createElement 'div')
+        div.html expected
+        normalized = div.html()
+        actual = value.html()
+        [actual == normalized, "to have html #{Spec.Display normalized}, actual #{Spec.Display actual}"]
+  
+  extend: (klass) ->
+    @_extended.push klass
+    
+    @extendObject klass
+    @extendObject klass.prototype if klass.prototype
+  
+  extendObject: (extend) ->
+    
+    # Tests for a positive match
+    extend.should = (matcher) ->
+      if typeof matcher is 'function'
+        result = matcher(this)
+        Spec.fail "expected #{result[1]}" unless result[0]
+
+    # Tests for a negative match
+    extend.shouldNot = (matcher) ->
+      if typeof matcher is 'function'
+        result = matcher(this)
+        Spec.fail "expected not #{result[1]}" if result[0]
+
+    # Creates a stub method with an expectation
+    extend.shouldReceive = (name) ->
+      object = this
+
+      received = expectation "to receive &ldquo;#{name}&rdquo;"
+
+      passthrough = object[name]
+      object[name] = -> received.meet()
+
+      received.with = (expectArgs...) ->
+        object[name] = (args...) ->
+          received.meet()
+          correct = true
+          correct = false if expectArgs.length != args.length
+          if correct
+            for i in [0..args.length]
+              correct = false unless String(expectArgs[i]) == String(args[i])
+          unless correct
+            Spec.fail "expected ##{name} to be called with arguments &ldquo;#{expectArgs.join ', '}&rdquo;, actual arguments: &ldquo;#{args.join ', '}&rdquo;"
+        received
+
+      received.andReturn = (returnValue) ->
+        fn = object[name]
+        object[name] = ->
+          fn.apply this, arguments
+          returnValue
+        received
+
+      received.andPassthrough = ->
+        fn = object[name]
+        object[name] = ->
+          fn.apply this, arguments
+          passthrough.apply this, arguments
+        received
+
+      received
+
+    # Creates a stub method, with an expectation of no calls
+    extend.shouldNotReceive = (name) ->
+      @shouldReceive(name).exactly(0).times    
   
   # Fails test, with an error message
   fail: (message, location) ->
@@ -366,11 +400,21 @@ window.Spec = {
   uninitializeEnvironment: ->
     @EnvironmentInitialized = false
     
-    delete Object.prototype.should
-    delete Object.prototype.shouldNot
+    for klass in @_extended
+      delete klass.should
+      delete klass.shouldNot
+      delete klass.shouldReceive
+      delete klass.shouldNotReceive
+      if klass.prototype
+        delete klass.prototype.should
+        delete klass.prototype.shouldNot
+        delete klass.prototype.shouldReceive
+        delete klass.prototype.shouldNotReceive
+
+    @_extended = []
+    
+    delete window.SpecObject
     delete window.expectation
-    delete Object.prototype.shouldReceive
-    delete Object.prototype.shouldNotReceive
     delete window.expect
     delete window.beforeEach
     delete window.describe
@@ -388,4 +432,5 @@ window.Spec = {
     delete window.beAnInstanceOf
     delete window.equal
     delete window.include
+    delete window.haveHtml
 }
