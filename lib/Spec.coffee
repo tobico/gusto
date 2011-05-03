@@ -255,7 +255,7 @@ window.Spec = {
       
         delete Spec.expectations
         delete Spec.testTitle
-        delete window.onerror
+        window.onerror = -> null
         
         env.sandbox.empty().remove()
         
