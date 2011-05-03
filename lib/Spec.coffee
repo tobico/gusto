@@ -73,9 +73,12 @@ window.Spec = {
         document.title = summary
         if @errors.length
           $('<h3>Errors</h3>').appendTo document.body
-          ul = $('<ul></ul>').addClass('errors').appendTo(document.body)
+          
+          html = ['<table class="errors"><thead><tr><th>Error</th><th>Location</th><th>Test</th></tr></thead><tbody>']
           for error in @errors
-            ul.append $('<li>').append($('<span>').html(error.message), ' - ', $('<span>').html(error.title))
+            html.push '<tr><td>', error.message, '</td><td>', error.location, '</td><td>', error.title, '</td></tr>'
+          html.push '</tbody></table>'
+          $(document.body).append html.join('')
       when 'terminal'
         $('.results').append "<br>"
         for error in @errors
@@ -228,57 +231,58 @@ window.Spec = {
       }
       definition()
       Spec.testStack.pop()
-
-    # Creates a specificaition
-    window.it = (title, definition) ->
+    
+    window.reportTestResult = (status) ->
       test = Spec.testStack[Spec.testStack.length - 1]
-      status = if definition?
-        env = {sandbox: $('<div/>').appendTo document.body}
-        for aTest in Spec.testStack
-          for action in aTest.before
-            action.call env
-      
-        Spec.expectations = []
-        Spec.testTitle = title
-      
-        window.onerror = (message) ->
-          Spec.fail "Error: #{message}"
-      
-        Spec.passed = true
-        try
-          definition.call env
-        catch e
-          Spec.fail 'Error: ' + e
-        
-        for expectation in Spec.expectations
-          expectation.check()
-      
-        delete Spec.expectations
-        delete Spec.testTitle
-        window.onerror = -> null
-        
-        env.sandbox.empty().remove()
-        
-        if Spec.passed then "passed"; else "failed"
-      else
-        "pending"
 
       switch Spec.Format
         when 'ul'
-          li = $('<li>' + title + '</li>')
-          li.addClass status
-
-          test.ul.append li
+          test.ul.append '<li class="' + status + '">' + Spec.testTitle + '</li>'
         when 'terminal'
-          s = title
+          s = Spec.testTitle
           color = switch status
             when 'passed' then 32
             when 'failed' then 31
             when 'pending' then 33
           $('.results').append Spec.Pad("&#x1b;[#{color}m#{s}&#x1b;[0m<br>", test.ul.depth)
-      
+
       Spec.counts[status]++
       Spec.counts.total++
+    
+    window.finishTest = ->
+      for expectation in Spec.expectations
+        expectation.check()
+
+      reportTestResult(if Spec.passed then "passed" else "failed")
+
+      delete Spec.expectations
+      delete Spec.testTitle
+      window.onerror = -> null
+  
+      Spec.env.sandbox.empty().remove()
+
+    # Creates a specificaition
+    window.it = (title, definition) ->
+      test = Spec.testStack[Spec.testStack.length - 1]
+      if definition?
+        Spec.env = {sandbox: $('<div/>').appendTo document.body}
+        for aTest in Spec.testStack
+          for action in aTest.before
+            action.call Spec.env
+
+        Spec.expectations = []
+        Spec.testTitle = title
+
+        window.onerror = (message, url, line) ->
+          Spec.fail message, "#{url.replace(document.location, '')}:#{line}"
+          Spec.passed = false
+          finishTest()
+        
+        Spec.passed = true
+        definition.call Spec.env        
+        finishTest()
+      else
+        reportTestResult "pending"
     
     # Tests if matched value is a function
     window.beAFunction = (value) ->
@@ -345,7 +349,7 @@ window.Spec = {
         include([expected])
   
   # Fails test, with an error message
-  fail: (message) ->
+  fail: (message, location) ->
     @passed = false
     @error = message
     titles = []
@@ -355,6 +359,7 @@ window.Spec = {
     @errors.push {
       title:    titles.join ' '
       message:  message
+      location: location
     }
   
   # Cleans test environment initialized with #initializeEnvironment
@@ -370,6 +375,8 @@ window.Spec = {
     delete window.beforeEach
     delete window.describe
     delete window.context
+    delete window.reportTestResult
+    delete window.finishTest
     delete window.it
     delete window.beAFunction
     delete window.beAString

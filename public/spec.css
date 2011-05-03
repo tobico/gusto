@@ -7,3 +7,13 @@
 .pending {
   color: #990;
 }
+.errors {
+  border-collapse: collapse;
+}
+.errors td, .errors th {
+  padding: 4px;
+}
+.errors th {
+  text-align: left;
+  background: #eee;
+}
