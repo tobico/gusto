@@ -46,7 +46,7 @@ class RequiredFiles < Hash
       }
       File.open name do |file|
         file.each do |line|
-          if line.match /^#(require|request)\s+(\S+)\s*$/
+          if line.match /^#=\s*(require|request)\s+(\S+)\s*$/
             directives[$1] << $2
           end
         end
