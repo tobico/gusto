@@ -52,7 +52,7 @@ Create a `.spec.coffee` file under `specs` for each test case.
     #require ST/Model
     
     Spec.describe "Model", ->
-      beforeEach ->
+      before ->
         ST.class 'TestModel', 'Model', -> null
         @model = ST.TestModel.create()
     
@@ -65,7 +65,7 @@ Specifications
 --------------
 
 `describe` and `context` blocks break up and organize your tests, and `it`
-blocks define individual tests. `beforeEach` blocks are run before each `it`
+blocks define individual tests. `before` blocks are run before each `it`
 block in the current `describe` or `context` block, allowing you to do setup
 before your test runs.
 

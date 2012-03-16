@@ -173,7 +173,7 @@ window.Spec = {
       }
     
     # Adds a setup step to the current test case
-    window.beforeEach = (action) ->
+    window.before = (action) ->
       test = Spec.testStack[Spec.testStack.length - 1]
       test.before.push action
     
@@ -416,7 +416,7 @@ window.Spec = {
     delete window.SpecObject
     delete window.expectation
     delete window.expect
-    delete window.beforeEach
+    delete window.before
     delete window.describe
     delete window.context
     delete window.reportTestResult
