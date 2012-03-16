@@ -39,12 +39,10 @@ You can override these locations by creating a configuration file in
 
 Here's an example configuration for a Rails project using [barista](https://github.com/Sutto/barista):
 
-    lib_dirs:
+    libs:
       - app/coffeescripts
-    spec_dirs:
+    specs:
       - spec/coffeescripts
-    js_libs:
-      - public/javascripts/rails.js
 
 Writing Specs
 -------------
@@ -195,11 +193,16 @@ The `times` at the end is only there for readability, it shouldn't be called wit
 Requires
 --------
 
-Seaweed automatically loads all of your specs, but loads only the lib files that are required. You will need to specify when one Coffeescript file requires another using the `#= require` directive:
+Seaweed automatically loads all of your specs, but loads only the lib files
+that are required, using the [Sprockets library](https://github.com/sstephenson/sprockets).
 
-    #= require models/car
-    
-In this example `models/car` refers to `lib/models/car.coffee`. Coffeescript files are sorted in order by dependency, so `car.coffee` will always be loaded before the script that required it. To cause another script to be loaded without creating a dependency, use `#= request` instead of `#= require`.
+You specify which files are required to run a script using `#= require`
+processor directives:
+
+    #= require jquery
+    #= require jquery-ui
+    #= require backbone
+    #= require_tree .
 
 Spec Runner
 -----------
@@ -207,7 +210,7 @@ Spec Runner
 Run specs with the `seaweed` command.
 
     jruby -S seaweed [mode]
-    
+
 The default mode is `auto`, which uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
 
 The `terminal` mode lets you run tests only once, for use with continuous integration tools.

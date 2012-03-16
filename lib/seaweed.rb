@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'sprockets'
 require 'celerity'
 require 'net/http'
 require 'rack'
@@ -19,9 +20,8 @@ module Seaweed
   def self.load_configuration
     # Set configuration defaults
     @configuration['port']        = 4567
-    @configuration['lib_dirs']    = ['lib']
-    @configuration['spec_dirs']   = ['spec']
-    @configuration['js_libs']     = []
+    @configuration['libs']    = ['lib']
+    @configuration['specs']   = ['spec']
     
     # Load custom configuration file
     CONFIG_PATHS.each do |path|
@@ -40,24 +40,36 @@ module Seaweed
     "http://localhost:#{port}/"
   end
   
-  def self.lib_paths
-    @configuration['lib_dirs']
+  def self.libs
+    @configuration['libs']
   end
   
-  def self.spec_paths
-    @configuration['spec_dirs']
+  def self.specs
+    @configuration['specs']
   end
   
   def self.all_paths
-    lib_paths + spec_paths
+    libs + specs
   end
   
-  def self.js_libs
-    @configuration['js_libs']
+  def self.sprockets_environment
+    @environment ||= Sprockets::Environment.new.tap do |environment|
+      all_paths.each do |path|
+        environment.append_path path
+      end
+    end
   end
   
   def self.start_server
-    app = Rack::Builder.app { run Seaweed::Server }
+    app = Rack::Builder.app do
+      map '/assets' do
+        run Seaweed.sprockets_environment
+      end
+      
+      map '/' do
+        run Seaweed::Server
+      end
+    end
     Rack::Handler.default.run app, :Port => port
   end
   

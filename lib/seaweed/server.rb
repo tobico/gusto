@@ -2,13 +2,12 @@ require 'sinatra'
 require 'slim'
 require 'coffee-script'
 require File.expand_path(File.dirname(__FILE__) + '/../seaweed')
-require File.expand_path(File.dirname(__FILE__) + '/../required_files')
 
 module Seaweed
   class Server < Sinatra::Application
     # Configure paths
-    set :public,  ROOT + '/public'
-    set :views,   ROOT + '/views'
+    set :public_folder,   ROOT + '/public'
+    set :views,           ROOT + '/views'
 
     # Configure slim for prettier code formatting
     Slim::Engine.set_default_options :pretty => true
@@ -56,36 +55,21 @@ module Seaweed
       end
     end
     
-    # Process request for static js library
-    get %r{^/js/(.*\.js)$} do |file_name|
-      File.read "#{Seaweed::PROJECT_ROOT}/#{file_name}"
-    end
-
     # Processes request for seaweed Spec library
     get "/Spec.js" do
       compile File.join(Seaweed::ROOT, 'lib', 'Spec.coffee'), "#{Seaweed::PROJECT_ROOT}/tmp/compiled/spec.js"
     end
-
-    # Processes request for project coffee files
-    get %r{^/(.+)/([^\/]+)\.js$} do |path, file|
-      compile "#{Seaweed::PROJECT_ROOT}/#{path}/#{file}.coffee", "#{Seaweed::PROJECT_ROOT}/tmp/compiled/#{path}/#{file}.js"
-    end
-
+    
     # Processes request for page index
     get "/" do
       # Build ordered list of required files to run all specs
-      requirements = RequiredFiles.new
-      requirements.paths = Seaweed.all_paths.map{|path| File.join Seaweed::PROJECT_ROOT, path}
-      Seaweed.spec_paths.each do |path|
+      @scripts = []
+      Seaweed.specs.each do |path|
         Dir["#{Seaweed::PROJECT_ROOT}/#{path}/**/*.spec.coffee"].each do |file|
-          if file.match Regexp.new("^#{Regexp.escape Seaweed::PROJECT_ROOT}\\/#{Regexp.escape path}\\/(.*).coffee$")
-            requirements.add $1
-          end
+          @scripts << $1 if file.match Regexp.new("^#{Regexp.escape Seaweed::PROJECT_ROOT}\\/#{Regexp.escape path}\\/(.*).coffee$")
         end
       end
-      @scripts = requirements.sorted_files.map{|file| file.sub Regexp.new("^#{Regexp.escape Seaweed::PROJECT_ROOT}\\/"), ''}
-      @js_libs = Seaweed.js_libs
-  
+      
       render :slim, :index
     end
   end
