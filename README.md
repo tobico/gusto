@@ -122,9 +122,9 @@ Matchers are paired with assertions to define your specs,
 e.g. `bike.color.should equal('red')`
 
   * `equal(expectedValue)`
-    Compares actual value with expected value using `==`
+    Compares string representations of actual and expected values
   * `be(expectedValue)`
-    Compares actual value with expected value using `===`
+    Directly compares actual value with expected value using `is`
   * `beAFunction`
     Tests if value is a function
   * `beAString`
