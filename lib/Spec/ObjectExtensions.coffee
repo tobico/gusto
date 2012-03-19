@@ -12,6 +12,10 @@ window.Spec.ObjectExtensions = {
       result = matcher(this)
       Spec.fail "expected not #{result[1]}" if result[0]
 
+  # Creates a stub method, with an expectation of no calls
+  shouldNotReceive: (name) ->
+    @shouldReceive(name).exactly(0).times
+
   # Creates a stub method with an expectation
   shouldReceive: (name) ->
     object = this
@@ -48,8 +52,4 @@ window.Spec.ObjectExtensions = {
       received
 
     received
-
-  # Creates a stub method, with an expectation of no calls
-  shouldNotReceive: (name) ->
-    @shouldReceive(name).exactly(0).times
 }

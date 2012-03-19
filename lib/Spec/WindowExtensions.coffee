@@ -4,6 +4,88 @@ window.Spec.WindowExtensions = {
     $.extend this, object if object
     this
   
+  # Tests if matched value === expected value
+  be: (expected) ->
+    (value) ->
+      [value is expected, "to be #{Spec.inspect expected}, actual #{Spec.inspect value}"]
+
+  # Tests if matched value is a boolean
+  beABoolean: (value) ->
+    [typeof value is 'boolean', "to have type &ldquo;boolean&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+  
+  # Tests if matched value is a function
+  beAFunction: (value) ->
+    [typeof value is 'function', "to have type &ldquo;function&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+
+  # Tests if matched value is a number
+  beANumber: (value) ->
+    [typeof value is 'number', "to have type &ldquo;number&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+
+  # Tests if matched value is a string
+  beAString: (value) ->
+    [typeof value is 'string', "to have type &ldquo;string&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+  
+  # Tests if matched value is an instance of class
+  beAnInstanceOf: (klass) ->
+    (value) ->
+      [value instanceof klass, "to be an instance of &ldquo;#{klass}&rdquo;"]
+  
+  # Tests if matched value is an object
+  beAnObject: (value) ->
+    [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+  
+  # Tests if matched value is boolean false
+  beFalse: (value) ->
+    [String(value) == 'false', "to be false, got #{Spec.inspect value}"]
+
+  # Adds a setup step to the current test case
+  before: (action) ->
+    test = Spec.testStack[Spec.testStack.length - 1]
+    test.before.push action
+  
+  # Tests if matched value is boolean true
+  beTrue: (value) ->
+    [String(value) == 'true', "to be true, got #{Spec.inspect value}"]
+  
+  context: () ->
+    describe.apply this, arguments
+
+  # Prepares a sub-test of the current test case
+  describe: (title, definition) ->
+    parent = Spec.testStack[Spec.testStack.length - 1]
+
+    ul = $('<ul></ul>')
+    switch Spec.Format
+      when 'ul'
+        parent.ul.append($('<li>' + title + '</li>').append(ul))
+      when 'terminal'
+        $('.results').append(Spec.pad(title, parent.ul.depth) + "<br>")
+        ul.depth = parent.ul.depth + 2
+
+    Spec.testStack.push {
+      title:    title
+      ul:       ul
+      before:   []
+    }
+    definition()
+    Spec.testStack.pop()
+
+  # Tests if matched value == expected value
+  equal: (expected) ->
+    (value) ->
+      [String(value) == String(expected), "to equal #{Spec.inspect String(expected)}, actual #{Spec.inspect String(value)}"]
+
+  # Allows an assertion on a non-object value
+  expect: (object) ->
+    {
+      to: (matcher) ->
+        result = matcher(object)
+        Spec.fail "expected #{result[1]}" unless result[0]
+      notTo: (matcher) ->
+        result = matcher(object)
+        Spec.fail "expected not #{result[1]}" if result[0]
+    }
+  
   # Sets up an expectation
   expectation: (message) ->
     exp = {
@@ -33,63 +115,7 @@ window.Spec.WindowExtensions = {
     }
     Spec.expectations.push exp
     exp
-
-  # Allows an assertion on a non-object value
-  expect: (object) ->
-    {
-      to: (matcher) ->
-        result = matcher(object)
-        Spec.fail "expected #{result[1]}" unless result[0]
-      notTo: (matcher) ->
-        result = matcher(object)
-        Spec.fail "expected not #{result[1]}" if result[0]
-    }
-
-  # Adds a setup step to the current test case
-  before: (action) ->
-    test = Spec.testStack[Spec.testStack.length - 1]
-    test.before.push action
-
-  context: () ->
-    describe.apply this, arguments
-
-  # Prepares a sub-test of the current test case
-  describe: (title, definition) ->
-    parent = Spec.testStack[Spec.testStack.length - 1]
-
-    ul = $('<ul></ul>')
-    switch Spec.Format
-      when 'ul'
-        parent.ul.append($('<li>' + title + '</li>').append(ul))
-      when 'terminal'
-        $('.results').append(Spec.Pad(title, parent.ul.depth) + "<br>")
-        ul.depth = parent.ul.depth + 2
-
-    Spec.testStack.push {
-      title:    title
-      ul:       ul
-      before:   []
-    }
-    definition()
-    Spec.testStack.pop()
-
-  reportTestResult: (status) ->
-    test = Spec.testStack[Spec.testStack.length - 1]
-
-    switch Spec.Format
-      when 'ul'
-        test.ul.append '<li class="' + status + '">' + Spec.testTitle + '</li>'
-      when 'terminal'
-        s = Spec.testTitle
-        color = switch status
-          when 'passed' then 32
-          when 'failed' then 31
-          when 'pending' then 33
-        $('.results').append Spec.Pad("&#x1b;[#{color}m#{s}&#x1b;[0m<br>", test.ul.depth)
-
-    Spec.counts[status]++
-    Spec.counts.total++
-
+  
   finishTest: ->
     for expectation in Spec.expectations
       expectation.check()
@@ -102,6 +128,35 @@ window.Spec.WindowExtensions = {
 
     Spec.env.sandbox.empty().remove()
 
+  haveHtml: (expected) ->
+    (value) ->
+      div = $(document.createElement 'div')
+      div.html expected
+      normalized = div.html()
+      actual = value.html()
+      [actual == normalized, "to have html #{Spec.inspect normalized}, actual #{Spec.inspect actual}"]
+  
+  # All-purpose inclusion matcher
+  include: (expected) ->
+    if expected instanceof Array
+      (value) ->
+        match = true
+        for test in expected
+          match = false unless (value.indexOf && value.indexOf(test) >= 0) || value[test]?
+        [match, "to include #{Spec.inspect expected}, actual #{Spec.inspect value}"]
+    else if typeof expected == 'object'
+      (value) ->
+        missing = {}
+        match = true
+        for test of expected
+          if expected.hasOwnProperty test
+            unless value[test] isnt undefined && String(value[test]) == String(expected[test])
+              match = false
+              missing[test] = expected[test]
+        [match, "to include #{Spec.inspect expected}, actual #{Spec.inspect value}, missing #{Spec.inspect missing}"]
+    else
+      include([expected])
+      
   # Creates a specificaition
   it: (title, definition) ->
     test = Spec.testStack[Spec.testStack.length - 1]
@@ -125,75 +180,21 @@ window.Spec.WindowExtensions = {
     else
       reportTestResult "pending"
 
-  # Tests if matched value is a function
-  beAFunction: (value) ->
-    [typeof value is 'function', "to have type &ldquo;function&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+  reportTestResult: (status) ->
+    test = Spec.testStack[Spec.testStack.length - 1]
 
-  # Tests if matched value is a string
-  beAString: (value) ->
-    [typeof value is 'string', "to have type &ldquo;string&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+    switch Spec.Format
+      when 'ul'
+        test.ul.append '<li class="' + status + '">' + Spec.testTitle + '</li>'
+      when 'terminal'
+        s = Spec.testTitle
+        color = switch status
+          when 'passed' then 32
+          when 'failed' then 31
+          when 'pending' then 33
+        $('.results').append Spec.pad("&#x1b;[#{color}m#{s}&#x1b;[0m<br>", test.ul.depth)
 
-  # Tests if matched value is a number
-  beANumber: (value) ->
-    [typeof value is 'number', "to have type &ldquo;number&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+    Spec.counts[status]++
+    Spec.counts.total++
 
-  # Tests if matched value is a boolean
-  beABoolean: (value) ->
-    [typeof value is 'boolean', "to have type &ldquo;boolean&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-
-  # Tests if matched value is an object
-  beAnObject: (value) ->
-    [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-
-  # Tests if matched value === expected value
-  be: (expected) ->
-    (value) ->
-      [value is expected, "to be #{Spec.Display expected}, actual #{Spec.Display value}"]
-
-  # Tests if matched value is boolean true
-  beTrue: (value) ->
-    [String(value) == 'true', "to be true, got #{Spec.Display value}"]
-
-  # Tests if matched value is boolean false
-  beFalse: (value) ->
-    [String(value) == 'false', "to be false, got #{Spec.Display value}"]
-
-  # Tests if matched value is an instance of class
-  beAnInstanceOf: (klass) ->
-    (value) ->
-      [value instanceof klass, "to be an instance of &ldquo;#{klass}&rdquo;"]
-
-  # Tests if matched value == expected value
-  equal: (expected) ->
-    (value) ->
-      [String(value) == String(expected), "to equal #{Spec.Display String(expected)}, actual #{Spec.Display String(value)}"]
-
-  # All-purpose inclusion matcher
-  include: (expected) ->
-    if expected instanceof Array
-      (value) ->
-        match = true
-        for test in expected
-          match = false unless (value.indexOf && value.indexOf(test) >= 0) || value[test]?
-        [match, "to include #{Spec.Display expected}, actual #{Spec.Display value}"]
-    else if typeof expected == 'object'
-      (value) ->
-        missing = {}
-        match = true
-        for test of expected
-          if expected.hasOwnProperty test
-            unless value[test] isnt undefined && String(value[test]) == String(expected[test])
-              match = false
-              missing[test] = expected[test]
-        [match, "to include #{Spec.Display expected}, actual #{Spec.Display value}, missing #{Spec.Display missing}"]
-    else
-      include([expected])
-
-  haveHtml: (expected) ->
-    (value) ->
-      div = $(document.createElement 'div')
-      div.html expected
-      normalized = div.html()
-      actual = value.html()
-      [actual == normalized, "to have html #{Spec.Display normalized}, actual #{Spec.Display actual}"]
 }
