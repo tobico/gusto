@@ -52,8 +52,10 @@ module Seaweed
     libs + specs
   end
   
+  # Prepares a Sprockets::Environment object to serve coffeescript assets
   def self.sprockets_environment
     @environment ||= Sprockets::Environment.new.tap do |environment|
+      environment.append_path File.join(Seaweed::ROOT, 'lib')
       all_paths.each do |path|
         environment.append_path path
       end

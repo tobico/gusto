@@ -3,9 +3,11 @@ head
   script type="text/javascript" src="ie.js"
   script type="text/javascript" src="jquery-1.5.2.js"
   link rel="stylesheet" href="spec.css" type="text/css"
-  script type="text/javascript" src="Spec.js"
+  script type="text/javascript" src="/assets/Spec.js"
 
 body
+  javascript:
+    Spec.initializeEnvironment();
   - @scripts.each do |file_name|
     script type="text/javascript" src="/assets/#{{file_name.sub /\.coffee$/, '.js'}}"
   javascript:
