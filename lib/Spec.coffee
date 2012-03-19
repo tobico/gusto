@@ -32,12 +32,13 @@ $.extend window.Spec, {
   escape: (string) ->
     $('<div/>').text(String(string)).html()
   
-  # Extends a single class with test methods
-  extend: (klass) ->
-    @_extended.push klass    
-    $.extend klass, @ObjectExtensions
-    $.extend klass.prototype, @ObjectExtensions if klass.prototype
-
+  # Extends a one or more classes with test methods
+  extend: () ->
+    for klass in arguments
+      @_extended.push klass
+      $.extend klass, @ObjectExtensions
+      $.extend klass.prototype, @ObjectExtensions if klass.prototype
+  
   # Fails test, with an error message
   fail: (message, location) ->
     @passed = false
@@ -102,16 +103,8 @@ $.extend window.Spec, {
       when 'terminal'
         $('body').append('<div class="results"></div>')
 
-    @extend SpecObject
-    @extend Array
-    @extend Boolean
-    @extend Date
-    @extend Function
-    @extend Number
-    @extend RegExp
-    @extend String
-    @extend Element
-    @extend jQuery
+    @extend Array, Boolean, Date, Element, Function, jQuery, Number, RegExp,
+      SpecObject, String
   
   # Returns an HTML representation of any kind of object
   inspect: (object) ->
