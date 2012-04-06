@@ -1,6 +1,7 @@
+# encoding: UTF-8
+
 require 'rubygems'
 require 'sprockets'
-require 'celerity'
 require 'net/http'
 require 'rack'
 require 'yaml'
@@ -89,6 +90,8 @@ module Seaweed
   end
   
   def self.run_suite
+    require 'celerity'
+    
     if @browser
       @browser.refresh
     else

@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require 'sinatra'
 require 'slim'
 require 'coffee-script'

@@ -13,7 +13,6 @@ Gem::Specification.new do |spec|
   spec.executables = ['seaweed']
   spec.add_dependency "coffee-script"
   spec.add_dependency "json"
-  spec.add_dependency "celerity"
   spec.add_dependency "sprockets"
   spec.add_dependency "sinatra"
   spec.add_dependency "slim"
