@@ -73,7 +73,7 @@ window.Spec.WindowExtensions = {
   # Tests if matched value == expected value
   equal: (expected) ->
     (value) ->
-      [String(value) == String(expected), "to equal #{Spec.inspect String(expected)}, actual #{Spec.inspect String(value)}"]
+      [String(value) == String(expected), "to match &ldquo;#{$.trim diffString(String(value), String(expected))}&rdquo;"]
 
   # Allows an assertion on a non-object value
   expect: (object) ->
@@ -134,7 +134,7 @@ window.Spec.WindowExtensions = {
       div.html expected
       normalized = div.html()
       actual = value.html()
-      [actual == normalized, "to have html #{Spec.inspect normalized}, actual #{Spec.inspect actual}"]
+      [actual == normalized, "to have html &ldquo;#{$.trim diffString(actual, normalized)}&rdquo;"]
   
   # All-purpose inclusion matcher
   include: (expected) ->

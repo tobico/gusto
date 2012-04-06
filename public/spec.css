@@ -17,3 +17,13 @@
   text-align: left;
   background: #eee;
 }
+del, ins {
+    margin: 0 0.2em;
+    font-weight: bold;
+}
+del {
+    color: #900;
+}
+ins {
+    color: #090;
+}
