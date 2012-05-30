@@ -2,15 +2,13 @@ window.Spec ||= {}
 window.Spec.ObjectExtensions = {
   # Tests for a positive match
   should: (matcher) ->
-    if typeof matcher is 'function'
-      result = matcher(this)
-      Spec.fail "expected #{result[1]}" unless result[0]
+    result = Spec.findMatcher(matcher)(this)
+    Spec.fail "expected #{result[1]}" unless result[0]
 
   # Tests for a negative match
   shouldNot: (matcher) ->
-    if typeof matcher is 'function'
-      result = matcher(this)
-      Spec.fail "expected not #{result[1]}" if result[0]
+    result = Spec.findMatcher(matcher)(this)
+    Spec.fail "expected not #{result[1]}" if result[0]
 
   # Creates a stub method, with an expectation of no calls
   shouldNotReceive: (name) ->
