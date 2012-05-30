@@ -1,14 +1,11 @@
-Seaweed - A coffeescript testing framework
-==========================================
+# Seaweed - A coffeescript testing framework
 
-Overview
---------
+## Overview
 
 Seaweed lets you write behavioral tests for your Coffeescript.
 It's inspired by rspec, and features a handy command-line spec runner.
 
-Comparison
-----------
+## Comparison
 
   * [Jasmine](https://github.com/pivotal/jasmine-gem)
     -- integrates well with Rails, limited command-line support,
@@ -20,8 +17,7 @@ Comparison
     -- native support for Coffeescript, clean syntax for assertions and stubs,
     no support for plain JavaScript, command-line autotest mode
 
-Installation
-------------
+## Installation
 
 To install seaweed:
 
@@ -37,8 +33,7 @@ To install under JRuby with RVM:
     rvm use jruby
     gem install celerity seaweed
 
-Project structure
------------------
+## Project structure
 
 Seaweed expects your Coffeescript source code to be in `.coffee` files,
 within a `lib` directory, and your specs to be in `.spec.coffee` files
@@ -54,8 +49,7 @@ Here's an example configuration for a Rails project using [barista](https://gith
     specs:
       - spec/coffeescripts
 
-Writing Specs
--------------
+## Writing Specs
 
 Create a `.spec.coffee` file under `specs` for each test case.
     
@@ -71,24 +65,51 @@ Create a `.spec.coffee` file under `specs` for each test case.
           scope = ST.TestModel.scoped()
           scope.should beAnInstanceOf(ST.Model.Scope)
 
-Specifications
---------------
+### Specifications
 
 `describe` and `context` blocks break up and organize your tests, and `it`
 blocks define individual tests. `before` blocks are run before each `it`
 block in the current `describe` or `context` block, allowing you to do setup
 before your test runs.
 
-Assertions
-----------
+    Spec.describe 'Employee', ->
+      describe '#new', ->
+        context 'with a name', ->
+          before ->
+            @employee = new Employee('Fred')
+          
+          it "should have a name", ->
+            @employee.name.should equal('Fred')
+
+#### Pending Specifications
+
+Leave out the definition, and a specification is marked as pending, waiting
+for you to write it later.
+
+    Spec.describe 'Employee', ->
+      describe '#new', ->
+        it "should have a name"
+        it "should have a valid email address"
+        it "should not have any invoices"
+
+#### Untitled Specifications
+
+If you leave out the title from a specification, Seaweed will attempt to
+create one using the source code of the specification definition. This works
+better for shorter specs.
+
+    Spec.describe 'Employee', ->
+      # Automatic title: "@employee name should not equal Barry"
+      it -> @employee.name.shouldNot equal('Barry')
+
+### Assertions
 
 Assertions are placed inside an `it` block, and can be made on an extended
 object with `.should` and `.shouldNot`, and on a non-extended object
 (such as null or undefined, or the base object) using `expect(object).to`
 and `expect(object).notTo`
 
-Extended Objects
-----------------
+### Extended Objects
 
 By default, Seaweed extends the following objects with methods `.should`,
 `.shouldNot`, `.shouldReceive` and `.shouldNotReceive`:
@@ -125,8 +146,7 @@ object itself.
     eric.shouldReceive 'spectacles'
     eric.spectacles 'blackRimmed'
 
-Matchers
---------
+### Matchers
 
 Matchers are paired with assertions to define your specs,
 e.g. `bike.color.should equal('red')`
@@ -157,8 +177,14 @@ e.g. `bike.color.should equal('red')`
     browser before comparison, so that things like tag attributes don't have to
     be in the same order to match.
 
-Stubs
------
+#### String Matchers
+
+These matchers are created dynamically, and specified using a string (i.e. `input.should 'beChecked'`):
+
+  * `be[Attribute]`
+    Tests that the specified attribute of the class evaluates to true.
+
+## Stubs
 
 You can stub any method of an extended object using `#shouldReceive`:
 
@@ -184,8 +210,7 @@ You can also use `.shouldNotReceive` to assert that a method not be called:
 
     @car.shouldNotReceive('crash')
 
-Expectations
-------------
+## Expectations
 
 `shouldReceive` creates an expectation, and you can create one yourself using `expectation(message)`:
 
@@ -200,8 +225,57 @@ The `times` at the end is only there for readability, it shouldn't be called wit
 
 `.shouldNotReceive(name)` is syntactic sugar for `.shouldReceive(name).exactly(0).times`.
 
-Requires
---------
+## Neater Tests
+
+The `given`, `subject`, and `its` methods help you write tests that are even
+nicer to read, and that can automatically generate sensible titles.
+
+### Given
+
+`given` is a shorthand way to set up your test objects.
+
+    describe '#setEngine', ->
+      given 'engine', -> new Engine()
+      
+      it 'should set engine', ->
+        @car.setEngine @engine
+        @car.getEngine().should be(@engine)
+
+### Subject
+
+`subject` sets up a special subject named `@subject`, which is automatically
+used as the object to run assertions on, when not explicitly specified.
+    
+    Spec.describe 'Car', ->
+      subject -> new Car()
+      
+      it -> should beAnInstanceOf(Car)
+      
+      describe '#setEngine' ->
+        given 'engine', -> new Engine()
+        before -> @subject.setEngine @engine
+        
+        # Automatic title: "should be running"
+        it -> should 'beRunning'
+
+### Its
+
+`its` tests an attribute of the subject.
+
+   Spec.describe 'Car', ->
+     subject -> new Car()
+     
+     describe '#setEngine' ->
+       given 'engine', -> new Engine()
+       before -> @subject.setEngine @engine
+       
+       # Automatic title: "engine should be @engine"
+       its('getEngine') -> should be(@engine)
+       
+       # Automatic title: "engine should not be overheated"
+       its('getEngine') -> shouldNot 'beOverheated'
+
+## Requires
 
 Seaweed automatically loads all of your specs, but loads only the lib files
 that are required, using the [Sprockets library](https://github.com/sstephenson/sprockets).
@@ -214,12 +288,11 @@ processor directives:
     #= require backbone
     #= require_tree .
 
-Spec Runner
------------
+## Spec Runner
 
 Run specs with the `seaweed` command.
 
-    jruby -S seaweed [mode]
+    seaweed [mode]
 
 The default mode is `auto`, which uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
 
@@ -228,3 +301,5 @@ The `terminal` mode lets you run tests only once, for use with continuous integr
 The `server` mode starts only the built in Sinatra server, allowing you to run
 tests manually through your browser of choice.
 *This is the mode you must choose if not running under JRuby*
+
+You can abbreviate modes to their first letter, for example `seaweed s` is the same as `seaweed server`.

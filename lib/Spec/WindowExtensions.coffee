@@ -34,6 +34,13 @@ window.Spec.WindowExtensions = {
   beAnObject: (value) ->
     [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
   
+  # Tests if given attribute is true
+  beAttribute: (attribute) ->
+    (value) ->
+      result = value[attribute]
+      result = result.call value if typeof result is 'function'
+      [!!result, "to be #{attribute}"]
+  
   # Tests if matched value is boolean false
   beFalse: (value) ->
     [String(value) == 'false', "to be false, got #{Spec.inspect value}"]
@@ -79,10 +86,10 @@ window.Spec.WindowExtensions = {
   expect: (object) ->
     {
       to: (matcher) ->
-        result = matcher(object)
+        result = Spec.findMatcher(matcher)(object)
         Spec.fail "expected #{result[1]}" unless result[0]
       notTo: (matcher) ->
-        result = matcher(object)
+        result = Spec.findMatcher(matcher)(object)
         Spec.fail "expected not #{result[1]}" if result[0]
     }
   
@@ -127,7 +134,15 @@ window.Spec.WindowExtensions = {
     window.onerror = -> null
 
     Spec.env.sandbox.empty().remove()
-
+  
+  # Syntactic sugar to create a before method that prepares a variable
+  #
+  # Example:
+  #     given 'dog', -> new Dog()
+  given: (name, definition) ->
+    before ->
+      @[name] = definition.call Spec.env
+  
   haveHtml: (expected) ->
     (value) ->
       div = $(document.createElement 'div')
@@ -159,6 +174,11 @@ window.Spec.WindowExtensions = {
       
   # Creates a specificaition
   it: (title, definition) ->
+    # Automatically choose a title when only definition supplied
+    if typeof title is 'function'
+      definition = title
+      title = Spec.descriptionize title
+    
     test = Spec.testStack[Spec.testStack.length - 1]
     if definition?
       Spec.env = {sandbox: $('<div/>').appendTo document.body}
@@ -179,7 +199,19 @@ window.Spec.WindowExtensions = {
       finishTest()
     else
       reportTestResult "pending"
-
+  
+  # Creates a specification that tests an attribute of subject
+  #
+  # Example:
+  #     subject -> new Employee('Fred')
+  #     its 'name', -> should equal('Fred')
+  its: (attribute, definition) ->
+    it "#{attribute} #{Spec.descriptionize definition}", ->
+      value = @subject[attribute]
+      value = value.call @subject if typeof value is 'function'
+      @subject = value
+      definition.call Spec.env
+  
   reportTestResult: (status) ->
     test = Spec.testStack[Spec.testStack.length - 1]
 
@@ -196,5 +228,25 @@ window.Spec.WindowExtensions = {
 
     Spec.counts[status]++
     Spec.counts.total++
+  
+  # Runs a test against @subject
+  # 
+  # Example
+  #     subject -> new Employee()
+  #     it -> should beAnInstanceOf(Employee)
+  should: (matcher) ->
+    expect(Spec.env.subject).to matcher
 
+  # Runs a negative test against @subject
+  # 
+  # Example
+  #     subject -> new Employee()
+  #     it -> shouldNot be(null)
+  shouldNot: (matcher) ->
+    expect(Spec.env.subject).notTo matcher
+  
+  # Creates a before method to prepare the @subject variable
+  subject: (definition) ->
+    given 'subject', definition
+  
 }

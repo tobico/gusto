@@ -28,6 +28,25 @@ $.extend window.Spec, {
     
     definition()
   
+  # Tries to format definition source code as readable test description
+  descriptionize: (definition) ->
+    # Get function source code
+    definition = String definition
+    
+    # Remove function boilerplate from beginning
+    definition = definition.replace(/^\s*function\s*\([^\)]*\)\s*\{\s*(return\s*)?/, '')
+    
+    # Remove function boilerplate from end
+    definition = definition.replace(/\s*;\s*\}\s*$/, '')
+    
+    # Replace symbols with whitespace
+    definition = definition.replace(/[\s\(\)_\-\.'"]+/g, ' ')
+    
+    # Split camelCased terms into seperate words
+    definition = definition.replace(/([a-z])([A-Z])/g, (s, a, b) -> "#{a} #{b.toLowerCase()}")
+    
+    definition
+  
   # Escapes text for HTML
   escape: (string) ->
     $('<div/>').text(String(string)).html()
@@ -78,7 +97,20 @@ $.extend window.Spec, {
         else
           32
         $('.results').append "&#x1b;[1m&#x1b;[#{color}m#{summary}&#x1b;[0m<br>"
-
+  
+  # Finds a matcher specified by a string, or passes through a matcher
+  # specified directly.
+  findMatcher: (value) ->
+    if typeof value is 'string'
+      if found = value.match(/^be([A-Z]\w*)$/)
+        beAttribute found[1].replace(/^[A-Z]/, (s) -> s.toLowerCase())
+      else if window[value]
+        window[value]
+      else
+        null
+    else
+      value
+  
   # Extends the environment with test methods
   initializeEnvironment: ->
     @EnvironmentInitialized = true
@@ -147,7 +179,7 @@ $.extend window.Spec, {
     for i in [1..times]
       string = '&nbsp;' + string
     string
-  
+    
   # Cleans test environment initialized with #initializeEnvironment
   uninitializeEnvironment: ->
     @EnvironmentInitialized = false
