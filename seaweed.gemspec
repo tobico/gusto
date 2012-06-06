@@ -1,6 +1,9 @@
+# -*- encoding: utf-8 -*-
+require File.expand_path('../lib/seaweed/version', __FILE__)
+
 Gem::Specification.new do |spec|  
   spec.name = "seaweed"
-  spec.version = '0.1.2'
+  spec.version = Seaweed::VERSION
 
   spec.summary = "Coffeescript testing framework"
   spec.description = "Seaweed is Coffeescript behavioral testing framework, with a command line tool that can be used to run specs automatically."
