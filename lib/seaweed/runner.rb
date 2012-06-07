@@ -7,6 +7,8 @@ module Seaweed
     def initialize mode, options={}, parser=nil
       Seaweed.load_configuration
       
+      Seaweed.port = options[:port] if options[:port]
+      
       if options[:version]
         puts "Seaweed Version #{Seaweed::VERSION}"
       else      

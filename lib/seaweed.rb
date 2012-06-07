@@ -36,6 +36,10 @@ module Seaweed
   def self.port
     @configuration['port']
   end
+
+  def self.port= value
+    @configuration['port'] = value
+  end
   
   def self.root_url
     "http://localhost:#{port}/"
