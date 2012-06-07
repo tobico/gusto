@@ -292,9 +292,9 @@ processor directives:
 
 Run specs with the `seaweed` command.
 
-    seaweed [mode]
+    seaweed [options] mode
 
-The default mode is `auto`, which uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
+The `auto` mode uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
 
 The `terminal` mode lets you run tests only once, for use with continuous integration tools.
 

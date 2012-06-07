@@ -2,5 +2,22 @@
 # encoding: UTF-8
 
 require "#{File.dirname(__FILE__)}/../lib/seaweed/runner.rb"
+require 'optparse'
 
-Seaweed::Runner.new ARGV.first
+options = {}
+parser = OptionParser.new do |o|
+  o.banner = "Usage: #{$0} [options] mode\nPossible modes: server, terminal, auto"
+  
+  options[:version] = false
+  o.on '-v', '--version', 'Show version' do
+    options[:version] = true
+  end
+  
+  o.on_tail '-h', '--help', 'Display this screen' do
+    puts o
+    exit
+  end
+end
+parser.parse!
+
+Seaweed::Runner.new ARGV.first, options, parser

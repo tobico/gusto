@@ -5,9 +5,9 @@ require 'sprockets'
 require 'net/http'
 require 'rack'
 require 'yaml'
+require 'seaweed/version'
 
 module Seaweed
-  VERSION         = "0.1.2"
   ROOT            = File.expand_path File.join(File.dirname(__FILE__), '..')
   PROJECT_ROOT    = File.expand_path "."
   
