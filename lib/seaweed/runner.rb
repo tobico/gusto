@@ -18,6 +18,7 @@ module Seaweed
           when 't', 'terminal'
             Seaweed.spawn_server
             Seaweed.run_suite
+            Seaweed.close_browser
           when 'a', 'auto'
             Seaweed.spawn_server
             Seaweed.run_suite

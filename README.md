@@ -23,16 +23,6 @@ To install seaweed:
 
     gem install seaweed
 
-You can install seaweed and run tests in your browser under any Ruby, but you
-can only run tests from the command line when the Celerity gem is available,
-which requires JRuby.
-
-To install under JRuby with RVM:
-
-    (rvm install jruby)
-    rvm use jruby
-    gem install celerity seaweed
-
 ## Project structure
 
 Seaweed expects your Coffeescript source code to be in `.coffee` files,
@@ -300,6 +290,5 @@ The `terminal` mode lets you run tests only once, for use with continuous integr
 
 The `server` mode starts only the built in Sinatra server, allowing you to run
 tests manually through your browser of choice.
-*This is the mode you must choose if not running under JRuby*
 
 You can abbreviate modes to their first letter, for example `seaweed s` is the same as `seaweed server`.

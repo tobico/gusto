@@ -5,6 +5,7 @@ require 'sprockets'
 require 'net/http'
 require 'rack'
 require 'yaml'
+require 'selenium/webdriver'
 require 'seaweed/version'
 
 module Seaweed
@@ -20,7 +21,7 @@ module Seaweed
   
   def self.load_configuration
     # Set configuration defaults
-    @configuration['port']        = 4567
+    @configuration['port']    = 4567
     @configuration['libs']    = ['lib']
     @configuration['specs']   = ['spec']
     
@@ -82,7 +83,7 @@ module Seaweed
   
   def self.spawn_server
     # Start server in its own thread
-    Thread.new &start_server
+    server = Thread.new &method(:start_server)
     
     # Keep trying to connect to server until we succeed
     begin
@@ -94,15 +95,18 @@ module Seaweed
   end
   
   def self.run_suite
-    require 'celerity'
-    
     if @browser
-      @browser.refresh
+      @browser.navigate.refresh
     else
-      @browser = Celerity::Browser.new
-      @browser.goto "#{root_url}#terminal"
+      @browser = Selenium::WebDriver.for :firefox, profile: Selenium::WebDriver::Firefox::Profile.new
+      @browser.get "#{root_url}#terminal"
     end
-    puts @browser.text
+    puts @browser[css: '.results'].text
+  end
+
+  def self.close_browser
+    @browser.close
+    @browser = nil
   end
   
   def self.watch_for_changes
