@@ -15,10 +15,11 @@ module Seaweed
         case mode
           when 's', 'server'
             Seaweed.start_server
-          when 't', 'terminal'
+          when 'c', 'ci'
             Seaweed.spawn_server
-            Seaweed.run_suite
+            result = Seaweed.run_suite
             Seaweed.close_browser
+            exit 1 unless result
           when 'a', 'auto'
             Seaweed.spawn_server
             Seaweed.run_suite

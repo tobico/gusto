@@ -6,7 +6,7 @@ require 'optparse'
 
 options = {}
 parser = OptionParser.new do |o|
-  o.banner = "Usage: #{$0} [options] mode\nPossible modes: server, terminal, auto"
+  o.banner = "Usage: #{$0} [options] mode\nPossible modes: server, ci, auto"
   
   options[:port] = nil
   o.on '-p', '--port PORT', 'Override server port' do |port|

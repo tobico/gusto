@@ -286,7 +286,7 @@ Run specs with the `seaweed` command.
 
 The `auto` mode uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
 
-The `terminal` mode lets you run tests only once, for use with continuous integration tools.
+The `ci` mode lets you run tests only once, for use with continuous integration tools.
 
 The `server` mode starts only the built in Sinatra server, allowing you to run
 tests manually through your browser of choice.

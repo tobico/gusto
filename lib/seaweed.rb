@@ -101,7 +101,9 @@ module Seaweed
       @browser = Selenium::WebDriver.for :firefox, profile: Selenium::WebDriver::Firefox::Profile.new
       @browser.get "#{root_url}#terminal"
     end
-    puts @browser[css: '.results'].text
+    result = @browser[css: '.results'].text
+    puts result
+    !!result.match('passed, 0 failed')
   end
 
   def self.close_browser
