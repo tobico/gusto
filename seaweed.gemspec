@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "json"
   spec.add_dependency "sprockets"
   spec.add_dependency "sinatra"
+  spec.add_dependency "thin" # Using thin because the default WEBrick doesn't behave nicely
   spec.add_dependency "slim"
   spec.add_dependency "selenium-webdriver"
   spec.add_dependency "watchr"

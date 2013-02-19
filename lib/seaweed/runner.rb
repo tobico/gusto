@@ -22,6 +22,7 @@ module Seaweed
       else
         case mode
           when 's', 'server'
+            puts "Starting seaweed server at http://127.0.0.1:#{@port}/"
             load_seaweed
             Seaweed.start_server
           when 'c', 'ci'
