@@ -1,26 +1,37 @@
 # encoding: UTF-8
 
-require File.expand_path(File.dirname(__FILE__) + '/../seaweed')
 
 module Seaweed
   class Runner
-    def initialize mode, options={}, parser=nil
+    def load_seaweed
+      require File.join(File.dirname(__FILE__), '..', 'seaweed')
       Seaweed.load_configuration
-      
-      Seaweed.port = options[:port] if options[:port]
+      Seaweed.port = @port
+    end
+
+    def load_seaweed_version
+      require File.join(File.dirname(__FILE__), '..', 'seaweed', 'version')
+    end
+
+    def initialize mode, options={}, parser=nil
+      @port = options[:port] || 4567
       
       if options[:version]
+        load_seaweed_version
         puts "Seaweed Version #{Seaweed::VERSION}"
-      else      
+      else
         case mode
           when 's', 'server'
+            load_seaweed
             Seaweed.start_server
           when 'c', 'ci'
+            load_seaweed
             Seaweed.spawn_server
             result = Seaweed.run_suite
             Seaweed.close_browser
             exit 1 unless result
           when 'a', 'auto'
+            load_seaweed
             Seaweed.spawn_server
             Seaweed.run_suite
             Seaweed.watch_for_changes
