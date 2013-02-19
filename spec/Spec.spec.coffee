@@ -20,6 +20,13 @@ Spec.describe 'Spec', ->
       @spec.describe()
 
     context 'when passed a definition', ->
+      it 'displays a new results node'
+
+      it 'constructs a test stack', ->
+        @spec.describe 'foo', ->
+        expect(@spec.testStack).to beAnArray
+        @spec.testStack.length.should == 1
+
       it 'calls the definition', ->
         called = expectation 'call the definition'
         @spec.describe 'foo', ->

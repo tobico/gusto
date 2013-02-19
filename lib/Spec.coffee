@@ -202,19 +202,55 @@ $.extend window.Spec,
     for key of @ObjectExtensions
         delete window[key]
 
-  reportTestResult: (status) ->
-    test = @testStack[@testStack.length - 1]
+  # TODO: Make this not be necessary
+  currentTest: ->
+    @testStack[@testStack.length - 1]
 
+  test: (title, definition) ->
+    title ||= @descriptionize(definition)    
+  
+    test = @currentTest()
+    test.title = title
+    if definition?
+      test.env = {}
+      test.expectations = []
+
+      # Start error catching; we do this on window instead of using
+      # JS error handling because it catches the error on more browsers
+      # and gives better debug information
+      window.onerror = (message, url, line) =>
+        @fail message, "#{url.replace(document.location, '')}:#{line}"
+        test.passed = false
+        @finishTest test
+
+      for aTest in @testStack
+        for action in aTest.before
+          action.call test.env
+
+      test.passed = true
+      definition.call test.env
+      @finishTest test
+    else
+      @reportTestResult test, "pending"
+
+  finishTest: (test) ->
+    for expectation in test.expectations
+      expectation.check()
+
+    @reportTestResult test, if test.passed then "passed" else "failed"
+
+    window.onerror = -> null
+
+  reportTestResult: (test, status) ->
     switch @Format
       when 'ul'
-        test.ul.append '<li class="' + status + '">' + @testTitle + '</li>'
+        test.ul.append '<li class="' + status + '">' + test.title + '</li>'
       when 'terminal'
-        s = @testTitle
         color = switch status
           when 'passed' then 32
           when 'failed' then 31
           when 'pending' then 33
-        $('.results').append @pad("&#x1b;[#{color}m#{s}&#x1b;[0m<br>", test.ul.depth)
+        $('.results').append @pad("&#x1b;[#{color}m#{test.title}&#x1b;[0m<br>", test.ul.depth)
 
     @counts[status]++
     @counts.total++

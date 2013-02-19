@@ -25,15 +25,19 @@ window.Spec.WindowExtensions =
   # Tests if matched value is a string
   beAString: (value) ->
     [typeof value is 'string', "to have type &ldquo;string&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+
+  # Tests if matched value is an object
+  beAnObject: (value) ->
+    [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
   
   # Tests if matched value is an instance of class
   beAnInstanceOf: (klass) ->
     (value) ->
       [value instanceof klass, "to be an instance of &ldquo;#{klass}&rdquo;"]
-  
-  # Tests if matched value is an object
-  beAnObject: (value) ->
-    [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
+
+  # Tests if matched value is an array
+  beAnArray: (value) ->
+    beAnInstanceOf(Array)(value)
   
   # Tests if given attribute is true
   beAttribute: (attribute) ->
@@ -121,20 +125,8 @@ window.Spec.WindowExtensions =
         if @met != @desired
           Spec.fail "expected to #{message} #{@timesString @desired}, actually happened #{@timesString @met}"
     }
-    Spec.expectations.push exp
+    Spec.currentTest().expectations.push exp
     exp
-  
-  finishTest: ->
-    for expectation in Spec.expectations
-      expectation.check()
-
-    Spec.reportTestResult(if Spec.passed then "passed" else "failed")
-
-    delete Spec.expectations
-    delete Spec.testTitle
-    window.onerror = -> null
-
-    Spec.env.sandbox.empty().remove()
   
   # Syntactic sugar to create a before method that prepares a variable
   #
@@ -174,36 +166,8 @@ window.Spec.WindowExtensions =
       include([expected])
       
   # Creates a specificaition
-  it: (title, definition) ->
-    # Automatically choose a title when only definition supplied
-    if typeof title is 'function'
-      definition = title
-      title = Spec.descriptionize title
-    
-    test = Spec.testStack[Spec.testStack.length - 1]
-    if definition?
-      Spec.env = {sandbox: $('<div/>').appendTo document.body}
-
-      Spec.expectations = []
-      Spec.testTitle = title
-
-      # Start error catching; we do this on window instead of using
-      # JS error handling because it catches the error on more browsers
-      # and gives better debug information
-      window.onerror = (message, url, line) ->
-        Spec.fail message, "#{url.replace(document.location, '')}:#{line}"
-        Spec.passed = false
-        finishTest()
-
-      for aTest in Spec.testStack
-        for action in aTest.before
-          action.call Spec.env
-
-      Spec.passed = true
-      definition.call Spec.env        
-      finishTest()
-    else
-      Spec.reportTestResult "pending"
+  it: (title=null, definition) ->
+    Spec.test title, definition
   
   # Creates a specification that tests an attribute of subject
   #
