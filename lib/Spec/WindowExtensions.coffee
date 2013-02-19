@@ -1,5 +1,6 @@
 window.Spec ||= {}
-window.Spec.WindowExtensions = {
+
+window.Spec.WindowExtensions =
   SpecObject: (object) ->
     $.extend this, object if object
     this
@@ -127,7 +128,7 @@ window.Spec.WindowExtensions = {
     for expectation in Spec.expectations
       expectation.check()
 
-    reportTestResult(if Spec.passed then "passed" else "failed")
+    Spec.reportTestResult(if Spec.passed then "passed" else "failed")
 
     delete Spec.expectations
     delete Spec.testTitle
@@ -182,23 +183,27 @@ window.Spec.WindowExtensions = {
     test = Spec.testStack[Spec.testStack.length - 1]
     if definition?
       Spec.env = {sandbox: $('<div/>').appendTo document.body}
-      for aTest in Spec.testStack
-        for action in aTest.before
-          action.call Spec.env
 
       Spec.expectations = []
       Spec.testTitle = title
 
+      # Start error catching; we do this on window instead of using
+      # JS error handling because it catches the error on more browsers
+      # and gives better debug information
       window.onerror = (message, url, line) ->
         Spec.fail message, "#{url.replace(document.location, '')}:#{line}"
         Spec.passed = false
         finishTest()
 
+      for aTest in Spec.testStack
+        for action in aTest.before
+          action.call Spec.env
+
       Spec.passed = true
       definition.call Spec.env        
       finishTest()
     else
-      reportTestResult "pending"
+      Spec.reportTestResult "pending"
   
   # Creates a specification that tests an attribute of subject
   #
@@ -211,23 +216,6 @@ window.Spec.WindowExtensions = {
       value = value.call @subject if typeof value is 'function'
       @subject = value
       definition.call Spec.env
-  
-  reportTestResult: (status) ->
-    test = Spec.testStack[Spec.testStack.length - 1]
-
-    switch Spec.Format
-      when 'ul'
-        test.ul.append '<li class="' + status + '">' + Spec.testTitle + '</li>'
-      when 'terminal'
-        s = Spec.testTitle
-        color = switch status
-          when 'passed' then 32
-          when 'failed' then 31
-          when 'pending' then 33
-        $('.results').append Spec.pad("&#x1b;[#{color}m#{s}&#x1b;[0m<br>", test.ul.depth)
-
-    Spec.counts[status]++
-    Spec.counts.total++
   
   # Runs a test against @subject
   # 
@@ -244,9 +232,12 @@ window.Spec.WindowExtensions = {
   #     it -> shouldNot be(null)
   shouldNot: (matcher) ->
     expect(Spec.env.subject).notTo matcher
+
+  # Creates a new mock object
+  mock: ->
+    new SpecObject()
   
   # Creates a before method to prepare the @subject variable
-  subject: (definition) ->
-    given 'subject', definition
-  
-}
+  subject: (name='subject', definition) ->
+    before ->
+      @subject = @[name] = definition.call Spec.env

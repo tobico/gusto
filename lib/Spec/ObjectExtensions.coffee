@@ -1,5 +1,10 @@
 window.Spec ||= {}
-window.Spec.ObjectExtensions = {
+
+window.Spec.ObjectExtensions = 
+  # Stubs a method on object
+  stub: (method) ->
+    new Spec.MethodStub(this, method)
+
   # Tests for a positive match
   should: (matcher) ->
     result = Spec.findMatcher(matcher)(this)
@@ -15,39 +20,5 @@ window.Spec.ObjectExtensions = {
     @shouldReceive(name).exactly(0).times
 
   # Creates a stub method with an expectation
-  shouldReceive: (name) ->
-    object = this
-
-    received = expectation "to receive &ldquo;#{name}&rdquo;"
-
-    passthrough = object[name]
-    object[name] = -> received.meet()
-
-    received.with = (expectArgs...) ->
-      object[name] = (args...) ->
-        received.meet()
-        correct = true
-        correct = false if expectArgs.length != args.length
-        if correct
-          for i in [0..args.length]
-            correct = false unless String(expectArgs[i]) == String(args[i])
-        unless correct
-          Spec.fail "expected ##{name} to be called with arguments &ldquo;#{expectArgs.join ', '}&rdquo;, actual arguments: &ldquo;#{args.join ', '}&rdquo;"
-      received
-
-    received.andReturn = (returnValue) ->
-      fn = object[name]
-      object[name] = ->
-        fn.apply this, arguments
-        returnValue
-      received
-
-    received.andPassthrough = ->
-      fn = object[name]
-      object[name] = ->
-        fn.apply this, arguments
-        passthrough.apply this, arguments
-      received
-
-    received
-}
+  shouldReceive: (method) ->
+    @stub(method).expectCalled()

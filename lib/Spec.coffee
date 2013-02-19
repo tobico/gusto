@@ -1,10 +1,12 @@
 #= require Spec/ObjectExtensions
 #= require Spec/WindowExtensions
+#= require Spec/MethodStub
 
 # Seaweed Coffeescript spec framework
 
 window.Spec ||= {}
-$.extend window.Spec, {
+
+$.extend window.Spec,
   EnvironmentInitialized: false
   _extended: []
 
@@ -12,21 +14,24 @@ $.extend window.Spec, {
   describe: (title, definition) ->
     @initializeEnvironment() unless @EnvironmentInitialized
 
-    ul = $('<ul></ul>')
-    switch @Format
-      when 'ul'
-        $('.results').append($('<li>' + title + '</li>').append(ul))
-      when 'terminal'
-        $('.results').append "#{title}<br>"
-        ul.depth = 2
-    
-    @testStack = [{
-      title:    title
-      ul:       ul
-      before:   []
-    }]
-    
-    definition()
+    if definition?
+      ul = $('<ul></ul>')
+      switch @Format
+        when 'ul'
+          $('.results').append($('<li>' + title + '</li>').append(ul))
+        when 'terminal'
+          $('.results').append "#{title}<br>"
+          ul.depth = 2
+      
+      @testStack = [{
+        title:    title
+        ul:       ul
+        before:   []
+      }]
+      
+      definition()
+    else
+      @reportTestResult "pending"
   
   # Tries to format definition source code as readable test description
   descriptionize: (definition) ->
@@ -115,7 +120,7 @@ $.extend window.Spec, {
   initializeEnvironment: ->
     @EnvironmentInitialized = true
 
-    $.extend window, @WindowExtensions
+    $.extend window, @WindowExtensions, @ObjectExtensions
 
     @errors = []
     @counts = {
@@ -193,4 +198,23 @@ $.extend window.Spec, {
     
     for key of @WindowExtensions
       delete window[key]
-}
+
+    for key of @ObjectExtensions
+        delete window[key]
+
+  reportTestResult: (status) ->
+    test = @testStack[@testStack.length - 1]
+
+    switch @Format
+      when 'ul'
+        test.ul.append '<li class="' + status + '">' + @testTitle + '</li>'
+      when 'terminal'
+        s = @testTitle
+        color = switch status
+          when 'passed' then 32
+          when 'failed' then 31
+          when 'pending' then 33
+        $('.results').append @pad("&#x1b;[#{color}m#{s}&#x1b;[0m<br>", test.ul.depth)
+
+    @counts[status]++
+    @counts.total++

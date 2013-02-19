@@ -6,7 +6,7 @@ require 'net/http'
 require 'rack'
 require 'yaml'
 require 'selenium/webdriver'
-require 'seaweed/version'
+require File.join(File.dirname(__FILE__), 'seaweed', 'version')
 
 module Seaweed
   ROOT            = File.expand_path File.join(File.dirname(__FILE__), '..')
