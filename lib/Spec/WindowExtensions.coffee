@@ -119,7 +119,7 @@ window.Spec.WindowExtensions =
             "#{times} times"
       check:        ->
         if @met != @desired
-          Spec.fail "expected #{message} #{@timesString @desired}, actually received #{@timesString @met}"
+          Spec.fail "expected to #{message} #{@timesString @desired}, actually happened #{@timesString @met}"
     }
     Spec.expectations.push exp
     exp

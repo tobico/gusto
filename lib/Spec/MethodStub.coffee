@@ -10,20 +10,23 @@ class window.Spec.MethodStub
     @object[@method]._stub = this
 
   expectCalled: ->
-    @received ||= expectation "to receive &ldquo;#{name}&rdquo;"
+    @received ||= expectation "receive &ldquo;#{name}&rdquo;"
     this
+
+  exactly: (args...) ->
+    @received.exactly args...
 
   with: (expectArgs...) ->
     old = @object[@method]
-    @object[@method] = =>
-      old.apply @object, arguments
+    @object[@method] = (args...) =>
+      old.apply @object, args
       correct = true
-      correct = false if expectArgs.length != arguments.length
+      correct = false if expectArgs.length != args.length
       if correct
-        for i in [0..arguments.length]
-          correct = false unless String(expectArgs[i]) == String(arguments[i])
+        for i in [0..args.length]
+          correct = false unless String(expectArgs[i]) == String(args[i])
       unless correct
-        Spec.fail "expected ##{name} to be called with arguments &ldquo;#{expectArgs.join ', '}&rdquo;, actual arguments: &ldquo;#{args.join ', '}&rdquo;"
+        Spec.fail "expected ##{name} to be called with args &ldquo;#{expectArgs.join ', '}&rdquo;, actual args: &ldquo;#{args.join ', '}&rdquo;"
     this
 
   andReturn: (returnValue) ->
