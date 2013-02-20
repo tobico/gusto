@@ -85,7 +85,7 @@ window.Spec.WindowExtensions =
   # Tests if matched value == expected value
   equal: (expected) ->
     (value) ->
-      [String(value) == String(expected), "to match &ldquo;#{$.trim diffString(String(value), String(expected))}&rdquo;"]
+      [String(value) == String(expected), "&ldquo;#{String value}&rdquo; to equal &ldquo;#{String expected}&rdquo; &mdash; #{$.trim diffString(String(value), String(expected))}"]
 
   # Allows an assertion on a non-object value
   expect: (object) ->

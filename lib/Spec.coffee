@@ -45,12 +45,15 @@ $.extend window.Spec,
     definition = definition.replace(/\s*;\s*\}\s*$/, '')
     
     # Replace symbols with whitespace
-    definition = definition.replace(/[\s\(\)_\-\.'"]+/g, ' ')
+    definition = definition.replace(/[\s\(\)\{\}_\-\.'";]+/g, ' ')
     
     # Split camelCased terms into seperate words
     definition = definition.replace(/([a-z])([A-Z])/g, (s, a, b) -> "#{a} #{b.toLowerCase()}")
+
+    # Replace the word return with "it" (only for functions that are more complex than a simple return)
+    definition = definition.replace ' return ', ' it '
     
-    definition
+    $.trim definition
   
   # Escapes text for HTML
   escape: (string) ->
@@ -94,7 +97,12 @@ $.extend window.Spec,
       when 'terminal'
         $('.results').append "<br>"
         for error in @errors
-          $('.results').append "&#x1b;[31m#{error.message}&#x1b;[0m #{error.title}<br>"
+          message = error.message
+          message = message.replace '<ins>', '&#x1b;[4;32m'
+          message = message.replace '</ins>', '&#x1b;[0;31m'
+          message = message.replace '<del>', '&#x1b;[7m'
+          message = message.replace '</del>', '&#x1b;[0m'
+          $('.results').append "&#x1b;[31m#{message}&#x1b;[0m #{error.title}<br>"
         color = if @counts.failed > 0
           31
         else if @counts.pending > 0
