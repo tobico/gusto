@@ -134,7 +134,7 @@ window.Spec.WindowExtensions =
   #     given 'dog', -> new Dog()
   given: (name, definition) ->
     before ->
-      @[name] = definition.call Spec.env
+      @[name] = definition.call this
   
   haveHtml: (expected) ->
     (value) ->
@@ -204,4 +204,4 @@ window.Spec.WindowExtensions =
   # Creates a before method to prepare the @subject variable
   subject: (name='subject', definition) ->
     before ->
-      @subject = @[name] = definition.call Spec.env
+      @subject = @[name] = definition.call this
