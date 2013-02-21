@@ -52,8 +52,7 @@ window.Spec.WindowExtensions =
 
   # Adds a setup step to the current test case
   before: (action) ->
-    test = Spec.testStack[Spec.testStack.length - 1]
-    test.before.push action
+    Spec.currentTest().before.push action
   
   # Tests if matched value is boolean true
   beTrue: (value) ->
