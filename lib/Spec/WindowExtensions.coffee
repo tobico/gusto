@@ -6,28 +6,18 @@ window.Spec.WindowExtensions =
     (value) ->
       [value is expected, "to be #{Spec.inspect expected}, actual #{Spec.inspect value}"]
 
-  # Tests if matched value is a boolean
-  beABoolean: (value) ->
-    [typeof value is 'boolean', "to have type &ldquo;boolean&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-  
-  # Tests if matched value is a function
-  beAFunction: (value) ->
-    [typeof value is 'function', "to have type &ldquo;function&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-
-  # Tests if matched value is a number
-  beANumber: (value) ->
-    [typeof value is 'number', "to have type &ldquo;number&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-
-  # Tests if matched value is a string
-  beAString: (value) ->
-    [typeof value is 'string', "to have type &ldquo;string&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-
-  # Tests if matched value is an object
-  beAnObject: (value) ->
-    [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
-  
   beA: (klass) ->
-    beAnInstanceOf klass
+    switch klass
+      when Boolean  then haveType 'boolean'
+      when Function then haveType 'function'
+      when Number   then haveType 'number'
+      when String   then haveType 'string'
+      when Object   then haveType 'object'
+      else beAnInstanceOf klass
+
+  haveType: (type) ->
+    (value) ->
+      [typeof value is type, "to have type &ldquo;#{type}&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
 
   # Tests if matched value is an instance of class
   beAnInstanceOf: (klass) ->

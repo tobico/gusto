@@ -14,7 +14,7 @@ Spec.describe 'Spec.MethodStub', ->
 
     it 'gives the object a stub method', ->
       @object.foo.shouldNot be @method
-      @object.foo.should beAFunction
+      @object.foo.should beA Function
 
     it 'attaches the method stub object to the new stubbed method', ->
       @object.foo._stub.should be @methodStub
@@ -89,7 +89,7 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
   describe 'andReturn', ->
     it 'sets return function to a function that returns given value', ->
       @call.andReturn 'foo'
-      @call.return.should beAFunction
+      @call.return.should beA Function
       @call.return().should equal 'foo'
 
   describe 'andPassthrough', ->
