@@ -57,6 +57,27 @@ module Seaweed
   def self.all_paths
     libs + specs
   end
+
+  def self.server
+    trap_sigint
+    spawn_server
+    Thread.stop
+  end
+
+  def self.cli
+    trap_sigint
+    spawn_server
+    result = Seaweed.run_suite
+    shut_down(result ? 0 : 1) 
+  end
+
+  def self.autotest
+    trap_sigint
+    spawn_server
+    run_suite
+    watch_for_changes
+    Thread.stop
+  end
   
   # Prepares a Sprockets::Environment object to serve coffeescript assets
   def self.sprockets_environment
@@ -83,7 +104,7 @@ module Seaweed
   
   def self.spawn_server
     # Start server in its own thread
-    server = Thread.new &method(:start_server)
+    @server = Thread.new &method(:start_server)
     
     # Keep trying to connect to server until we succeed
     begin
@@ -106,21 +127,30 @@ module Seaweed
     !!result.match('passed, 0 failed')
   end
 
-  def self.close_browser
-    @browser.close
-    @browser = nil
-  end
-  
   def self.watch_for_changes
-    require 'watchr'
+    require 'listen'
     
-    # Build a regexp to match .coffee files in any project paths
-    path_matcher = Regexp.new('^(' + all_paths.map{ |s| Regexp.escape s}.join('|') + ')\/.*\.coffee$')
-    
-    script = Watchr::Script.new
-    script.watch(path_matcher) { run_suite }
-    controller = Watchr::Controller.new(script, Watchr.handler.new)
-    controller.run
+    @listener = Listen.to(PROJECT_ROOT)
+
+    # Match .coffee files in any project paths
+    @listener.filter Regexp.new('^(' + all_paths.map{ |s| Regexp.escape s}.join('|') + ')\/.*\.coffee$')
+
+    @listener.change { run_suite }
+    @listener.start false
+  end
+
+  def self.shut_down(status=0)
+    @listener.stop if @listener
+    @browser.close if @browser
+    @server.exit if @server
+    exit status
+  end
+
+  def self.trap_sigint
+    trap('SIGINT') do
+      puts "Shutting down..."
+      shut_down
+    end
   end
 end
 

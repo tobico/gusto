@@ -24,18 +24,13 @@ module Seaweed
           when 's', 'server'
             puts "Starting seaweed server at http://127.0.0.1:#{@port}/"
             load_seaweed
-            Seaweed.start_server
-          when 'c', 'ci'
+            Seaweed.server
+          when 'c', 'cli'
             load_seaweed
-            Seaweed.spawn_server
-            result = Seaweed.run_suite
-            Seaweed.close_browser
-            exit 1 unless result
+            Seaweed.cli
           when 'a', 'auto'
             load_seaweed
-            Seaweed.spawn_server
-            Seaweed.run_suite
-            Seaweed.watch_for_changes
+            Seaweed.autotest
           else
             puts parser || "Unknown mode “#{mode}”"
         end
