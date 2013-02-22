@@ -7,7 +7,7 @@ class window.Spec.MethodStub
     @_replaceMethodOnObject()
 
   call: ->
-    call = new Spec.MethodStub.PossibleCall()
+    call = new Spec.MethodStub.PossibleCall(this)
     @possibleCalls.push call
     call
 
@@ -23,41 +23,32 @@ class window.Spec.MethodStub
   _stubMethod: ->
     stubMethod = (args...) =>
       if call = @_findPossibleCall(args)
-        result = call.call args
-        if result is Spec.MethodStub.PossibleCall.PASSTHROUGH
-          @original args
-        else
-          result
-      else if @possibleCalls.length
-        Spec.fail "expected ##{@method} to be called#{@possibleCalls[0].argumentsString()}, actual arguments: &ldquo;#{args.join ', '}&rdquo;"
-        null
+        call.call args
 
     stubMethod._stub = this
     stubMethod
 
   _findPossibleCall: (args) ->
     for call in @possibleCalls
-      if call.matchesArguments(arguments)
-        return call
-    false
+      break if call.matchesArguments(arguments)
+    call
 
   _replaceMethodOnObject: ->
     @object[@method] = @_stubMethod()
 
 class window.Spec.MethodStub.PossibleCall
-  PASSTHROUGH: {}
+  constructor: (@methodStub) ->
 
   with: (args...) ->
     @arguments = args
     this
 
   andReturn: (returnValue) ->
-    @return = returnValue
+    @return = -> returnValue
     this
 
   andPassthrough: ->
-    @return = Spec.MethodStub.PossibleCall.PASSTHROUGH
-    this
+    @return = @methodStub.original
 
   expect: ->
     # TODO: Make this description better, possibly with name of
@@ -83,12 +74,19 @@ class window.Spec.MethodStub.PossibleCall
     else
       true
 
-  argumentsString: ->
+  call: (args) ->
+    if @matchesArguments(args)
+      @expectation.meet() if expectation
+      @return.apply @methodStub.object, args if @return
+    else
+      @_failOnInvalidArguments args
+      null
+  
+  _failOnInvalidArguments: (args) ->
+    Spec.fail "expected ##{@method} to be called#{@_argumentsString()}, actual arguments: &ldquo;#{args.join ', '}&rdquo;"
+
+  _argumentsString: ->
     if @arguments
       " with arguments &ldquo;#{@arguments.join ', '}&rdquo;"
     else
       ''
-
-  call: (args) ->
-    @expectation.meet() if expectation
-    @return
