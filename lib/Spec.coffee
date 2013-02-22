@@ -1,6 +1,7 @@
 #= require Spec/ObjectExtensions
 #= require Spec/WindowExtensions
 #= require Spec/MethodStub
+#= require Spec/MockObject
 
 # Seaweed Coffeescript spec framework
 
@@ -149,7 +150,7 @@ $.extend window.Spec,
         $('body').append('<div class="results"></div>')
 
     @extend Array, Boolean, Date, Element, Function, jQuery, Number, RegExp,
-      SpecObject, String
+      Spec.MockObject, String
   
   # Returns an HTML representation of any kind of object
   inspect: (object) ->

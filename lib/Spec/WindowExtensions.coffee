@@ -1,10 +1,6 @@
 window.Spec ||= {}
 
 window.Spec.WindowExtensions =
-  SpecObject: (object) ->
-    $.extend this, object if object
-    this
-  
   # Tests if matched value === expected value
   be: (expected) ->
     (value) ->
@@ -200,10 +196,45 @@ window.Spec.WindowExtensions =
     expect(Spec.env.subject).notTo matcher
 
   # Creates a new mock object
-  mock: ->
-    new SpecObject()
+  # 
+  # Pass in a hash of method stubs to add to your mock.
+  #
+  # `mock(boots: 'cats')` gives an object that has the method:
+  # `boots: -> 'cats'`
+  #
+  # Optionally, you can pass a name to identify this mock as the
+  # first parameter.
+  #
+  mock: (args...) ->
+    name = args.shift() if typeof args[0] is 'string'
+    stubs = args.pop() || {}
+    new Spec.MockObject(name, stubs)
   
-  # Creates a before method to prepare the @subject variable
-  subject: (name='subject', definition) ->
+  # Defines the subject of your test.
+  #
+  # Pass in a definition method which returns an object to be your
+  # test subject. This will be assigined to the instance variable
+  # @subject before your test runs. This subject will be used for
+  # any `should` or `shouldNot` tests you specify using the global
+  # `should` and `shouldNot` methods.
+  #
+  #     subject -> new Client()
+  #     
+  #     it { should beA Client }
+  #
+  # Optionally, you can specify a name for your subject as the
+  # first parameter. This lets you call the subject by its name,
+  # making your tests more readable.
+  #
+  #     subject 'foo', -> ...
+  #     
+  #     it 'gets prepared' ->
+  #       @foo.prepare
+  #       should 'bePrepared'
+  #
+  subject: (args...) ->
+    definition = args.pop()
+    name = args.pop()
     before ->
-      @subject = @[name] = definition.call this
+      @subject = definition.call this
+      @[name] = @subject if name
