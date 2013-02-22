@@ -214,6 +214,8 @@ $.extend window.Spec,
   currentTest: ->
     @testStack[@testStack.length - 1]
 
+  # TODO: Store all of the tests as they're defined, then
+  # run them afterward so we can handle errors better
   test: (title, definition) ->
     title ||= @descriptionize(definition)    
   

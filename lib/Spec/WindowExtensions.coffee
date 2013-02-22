@@ -30,6 +30,9 @@ window.Spec.WindowExtensions =
   beAnObject: (value) ->
     [typeof value is 'object', "to have type &ldquo;object&rdquo;, actual &ldquo;#{typeof value}&rdquo;"]
   
+  beA: (klass) ->
+    beAnInstanceOf klass
+
   # Tests if matched value is an instance of class
   beAnInstanceOf: (klass) ->
     (value) ->
