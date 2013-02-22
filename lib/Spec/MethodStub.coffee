@@ -2,27 +2,17 @@ window.Spec ||= {}
 
 class window.Spec.MethodStub
   constructor: (@object, @method) ->
-    @original = @object[@method]
     @possibleCalls = []
     @_replaceMethodOnObject()
 
-  call: ->
+  possibleCall: ->
     call = new Spec.MethodStub.PossibleCall(this)
-    @possibleCalls.push call
+    @possibleCalls.unshift call
     call
-
-  exactly: (args...) ->
-    @received.exactly args...
-
-  with: (args...) ->
-    @call().with args...
-
-  andReturn: (result) ->
-    @call().andReturn result
 
   _stubMethod: ->
     stubMethod = (args...) =>
-      if call = @_findPossibleCall(args)
+      if call = arguments.callee._stub._findPossibleCall(args)
         call.call args
 
     stubMethod._stub = this
@@ -34,6 +24,7 @@ class window.Spec.MethodStub
     call
 
   _replaceMethodOnObject: ->
+    @original = @object[@method]
     @object[@method] = @_stubMethod()
 
 class window.Spec.MethodStub.PossibleCall
@@ -76,7 +67,7 @@ class window.Spec.MethodStub.PossibleCall
 
   call: (args) ->
     if @matchesArguments(args)
-      @expectation.meet() if expectation
+      @expectation.meet() if @expectation
       @return.apply @methodStub.object, args if @return
     else
       @_failOnInvalidArguments args

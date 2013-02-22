@@ -3,7 +3,11 @@ window.Spec ||= {}
 window.Spec.ObjectExtensions = 
   # Stubs a method on object
   stub: (method) ->
-    new Spec.MethodStub(this, method)
+    stub = if @[method] && @[method]._stub
+      @[method]._stub
+    else
+      new Spec.MethodStub(this, method)
+    stub.possibleCall()
 
   # Tests for a positive match
   should: (matcher) ->
@@ -17,7 +21,7 @@ window.Spec.ObjectExtensions =
 
   # Creates a stub method with an expectation
   shouldReceive: (method) ->
-    @stub(method).call().expect()
+    @stub(method).expect()
 
   # Creates a stub method, with an expectation of no calls
   shouldNotReceive: (name) ->
