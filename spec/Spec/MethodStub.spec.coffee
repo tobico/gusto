@@ -1,9 +1,10 @@
 Spec.extend Spec.MethodStub, Spec.MethodStub.PossibleCall
 
 Spec.describe 'Spec.MethodStub', ->
+  given 'test', -> mock 'test'
   given 'method', -> ->
   given 'object', -> {foo: @method}
-  subject 'methodStub', -> new Spec.MethodStub(@object, 'foo')
+  subject 'methodStub', -> new Spec.MethodStub(@test, @object, 'foo')
 
   describe 'constructor', ->
     it 'stashes the original method', ->
@@ -58,6 +59,12 @@ Spec.describe 'Spec.MethodStub', ->
     it 'returns a new possible call', ->
       @methodStub.possibleCall().should beA Spec.MethodStub.PossibleCall
 
+    it 'assigns test for possible call', ->
+      @methodStub.possibleCall().test.should be @test
+
+    it 'assigns original method for possible call', ->
+      @methodStub.possibleCall().original.should be @methodStub.original
+
     it 'keeps track of new PossibleCall in @possibleCalls', ->
       call = @methodStub.possibleCall()
       @methodStub.possibleCalls.length.should equal 1
@@ -69,38 +76,31 @@ Spec.describe 'Spec.MethodStub', ->
       @methodStub.possibleCalls[0].should be second
 
 Spec.describe 'Spec.MethodStub.PossibleCall', ->
-  given 'methodStub', -> mock 'methodStub'
-  given 'originalMethod', -> -> "I'm original"
+  given 'test', -> mock 'test'
+  given 'original', -> -> "I'm the original method"
   subject 'call', ->
-    new Spec.MethodStub.PossibleCall(@methodStub)
-
-  before ->
-    @methodStub.original = @originalMethod
-
-  describe 'constructor', ->
-    it 'assigns methodStub', ->
-      @call.methodStub.should be @methodStub
+    new Spec.MethodStub.PossibleCall(@test, @original)
 
   describe '#with', ->
     it 'sets @arguments to an array of arguments', ->
       @call.with 'foo', 'bar'
       @call.arguments.should == ['foo', 'bar']
 
-  describe 'andReturn', ->
+  describe '#andReturn', ->
     it 'sets return function to a function that returns given value', ->
       @call.andReturn 'foo'
       @call.return.should beA Function
       @call.return().should equal 'foo'
 
-  describe 'andPassthrough', ->
+  describe '#andPassthrough', ->
     it 'sets return function to the original method before stubbing', ->
       @call.andPassthrough()
-      @call.return.should be @originalMethod
+      @call.return.should be @original
 
-  describe 'expect', ->
+  describe '#expect', ->
     it 'creates an expectation'
 
-  describe 'twice', ->
+  describe '#twice', ->
     given 'expectation', -> mock(twice: null)
 
     before ->
@@ -113,7 +113,7 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
     it 'returns the possibleCall', ->
       @call.twice().should be @call
 
-  describe 'exactly', ->
+  describe '#exactly', ->
     given 'expectation', -> mock(exactly: {times: null})
 
     before ->
@@ -126,3 +126,41 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
     it 'returns the possibleCall as .times', ->
       @call.exactly(3).times.should be @call
 
+  describe '#matchesArguments', ->
+    it 'is true if no required arguments', ->
+      @call.matchesArguments().should beTrue
+
+    it 'is false if length of expected arguments is different', ->
+      @call.with 'foo'
+      @call.matchesArguments('foo', 'bar').should beFalse
+
+    it 'is false if one of the arguments is different', ->
+      @call.with 'foo', 'bar'
+      @call.matchesArguments('foo', 'zap').should beFalse
+
+    it 'is true if all arguments the same', ->
+      @call.with 'foo', 'bar'
+      @call.matchesArguments(['foo', 'bar']).should beTrue
+
+  describe '#call', ->
+    given 'object', -> mock 'object'
+
+    context 'when arguments match', ->
+      before ->
+        @call.with 'lets', 'be', 'awesome'
+
+      it 'meets expectation', ->
+        @call.expectation = expectation 'be met'
+        @call.call @object, 'awesomize', ['lets', 'be', 'awesome']
+
+      it 'calls the return function with object and arguments, and returns results', ->
+        @call.stub('return').with('lets', 'be', 'awesome').andReturn('ok')
+        @call.call(@object, 'awesomize', ['lets', 'be', 'awesome']).should equal 'ok'
+
+    context 'when arguments do not match', ->
+      before ->
+        @call.with 'foo'
+
+      it 'fails with an message about invalid arguments', ->
+        @test.shouldReceive('fail').with('expected #awesomize to be called with arguments &ldquo;foo&rdquo;, actual arguments: &ldquo;bar&rdquo;')
+        @call.call @object, 'awesomize', ['bar']

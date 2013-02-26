@@ -6,7 +6,7 @@ window.Spec.ObjectExtensions =
     stub = if @[method] && @[method]._stub
       @[method]._stub
     else
-      new Spec.MethodStub(this, method)
+      new Spec.MethodStub(Spec.currentTest(), this, method)
     stub.possibleCall()
 
   # Tests for a positive match
