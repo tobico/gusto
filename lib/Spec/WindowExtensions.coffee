@@ -63,6 +63,7 @@ window.Spec.WindowExtensions =
         ul.depth = parent.ul.depth + 2
 
     Spec.testStack.push {
+      fail:     -> Spec.fail.apply Spec, arguments
       title:    title
       ul:       ul
       before:   []
@@ -88,31 +89,7 @@ window.Spec.WindowExtensions =
   
   # Sets up an expectation
   expectation: (message) ->
-    exp = {
-      message:      message
-      meet:         -> @met++
-      met:          0
-      desired:      1
-      twice:        ->
-        @desired = 2
-        this
-      exactly:      (times) ->
-        @desired = times
-        {times: this}
-      timesString:  (times) ->
-        switch times
-          when 0
-            'not at all'
-          when 1
-            'once'
-          when 2
-            'twice'
-          else
-            "#{times} times"
-      check:        ->
-        if @met != @desired
-          Spec.fail "expected to #{message} #{@timesString @desired}, actually happened #{@timesString @met}"
-    }
+    exp = new Spec.DelayedExpectation(message)
     Spec.currentTest().expectations.push exp
     exp
   

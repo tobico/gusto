@@ -1,5 +1,6 @@
 #= require Spec/ObjectExtensions
 #= require Spec/WindowExtensions
+#= require Spec/DelayedExpectation
 #= require Spec/MethodStub
 #= require Spec/MockObject
 
@@ -25,6 +26,7 @@ $.extend window.Spec,
           ul.depth = 2
       
       @testStack = [{
+        fail:     -> Spec.fail.apply Spec, arguments
         title:    title
         ul:       ul
         before:   []
@@ -246,7 +248,7 @@ $.extend window.Spec,
 
   finishTest: (test) ->
     for expectation in test.expectations
-      expectation.check()
+      expectation.check(test)
 
     @reportTestResult test, if test.passed then "passed" else "failed"
 
