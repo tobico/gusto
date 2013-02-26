@@ -112,3 +112,17 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
 
     it 'returns the possibleCall', ->
       @call.twice().should be @call
+
+  describe 'exactly', ->
+    given 'expectation', -> mock(exactly: {times: null})
+
+    before ->
+      @call.expectation = @expectation
+    
+    it 'delegates to expectation', ->
+      @expectation.shouldReceive('exactly')
+      @call.exactly()
+
+    it 'returns the possibleCall as .times', ->
+      @call.exactly(3).times.should be @call
+
