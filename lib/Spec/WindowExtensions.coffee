@@ -98,6 +98,8 @@ window.Spec.WindowExtensions =
   # Example:
   #     given 'dog', -> new Dog()
   given: (name, definition) ->
+    throw 'Definition for given must be a function' unless definition.call
+
     before ->
       @[name] = definition.call this
   
@@ -144,7 +146,7 @@ window.Spec.WindowExtensions =
       value = @subject[attribute]
       value = value.call @subject if typeof value is 'function'
       @subject = value
-      definition.call Spec.env
+      definition.call this
   
   # Runs a test against @subject
   # 
@@ -152,7 +154,7 @@ window.Spec.WindowExtensions =
   #     subject -> new Employee()
   #     it -> should beAnInstanceOf(Employee)
   should: (matcher) ->
-    expect(Spec.env.subject).to matcher
+    expect(Spec.currentTest().env.subject).to matcher
 
   # Runs a negative test against @subject
   # 
@@ -160,7 +162,7 @@ window.Spec.WindowExtensions =
   #     subject -> new Employee()
   #     it -> shouldNot be(null)
   shouldNot: (matcher) ->
-    expect(Spec.env.subject).notTo matcher
+    expect(Spec.currentTest().env.subject).notTo matcher
 
   # Creates a new mock object
   # 

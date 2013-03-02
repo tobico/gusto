@@ -131,7 +131,7 @@ $.extend window.Spec,
   initializeEnvironment: ->
     @EnvironmentInitialized = true
 
-    $.extend window, @WindowExtensions, @ObjectExtensions
+    $.extend window, @ObjectExtensions, @WindowExtensions
 
     @errors = []
     @counts = {
