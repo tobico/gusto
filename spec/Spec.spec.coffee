@@ -28,9 +28,7 @@ Spec.describe 'Spec', ->
     before ->
       @klass = ->
       @instance = new @klass
-      @extensions = {
-        foo: ->
-      }
+      @extensions = mock(foo: null)
       @spec.ObjectExtensions = @extensions
       @spec.extend = Spec.extend
       @spec._extended = []
