@@ -24,7 +24,7 @@ Spec.describe 'Spec', ->
 
       it 'constructs a test stack', ->
         @spec.describe 'foo', ->
-        expect(@spec.testStack).to beAnArray
+        expect(@spec.testStack).to beAn Array
         @spec.testStack.length.should == 1
 
       it 'calls the definition', ->

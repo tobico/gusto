@@ -1,5 +1,7 @@
+#= require Spec/Util
 #= require Spec/ObjectExtensions
-#= require Spec/WindowExtensions
+#= require Spec/SeaweedDSL
+#= require Spec/Matchers
 #= require Spec/DelayedExpectation
 #= require Spec/MethodStub
 #= require Spec/MockObject
@@ -8,7 +10,7 @@
 
 window.Spec ||= {}
 
-$.extend window.Spec,
+Spec.Util.extend window.Spec,
   EnvironmentInitialized: false
   _extended: []
 
@@ -66,8 +68,8 @@ $.extend window.Spec,
   extend: () ->
     for klass in arguments
       @_extended.push klass
-      $.extend klass, @ObjectExtensions
-      $.extend klass.prototype, @ObjectExtensions if klass.prototype
+      Spec.Util.extend klass, @ObjectExtensions
+      Spec.Util.extend klass.prototype, @ObjectExtensions if klass.prototype
   
   # Fails test, with an error message
   fail: (message, location) ->
@@ -131,7 +133,7 @@ $.extend window.Spec,
   initializeEnvironment: ->
     @EnvironmentInitialized = true
 
-    $.extend window, @ObjectExtensions, @WindowExtensions
+    Spec.Util.extend window, @ObjectExtensions, @Matchers, @SeaweedDSL
 
     @errors = []
     @counts = {
@@ -201,17 +203,11 @@ $.extend window.Spec,
     @EnvironmentInitialized = false
     
     for klass in @_extended
-      for key of @ObjectExtensions
-        delete klass[key]
-        delete klass.prototype[key] if klass.prototype
+      Spec.Util.unextend klass, @ObjectExtensions
     
     @_extended.length = 0
     
-    for key of @WindowExtensions
-      delete window[key]
-
-    for key of @ObjectExtensions
-        delete window[key]
+    Spec.Util.unextend window, @ObjectExtensions, @Matchers, @SeaweedDSL
 
   # TODO: Make this not be necessary
   currentTest: ->
