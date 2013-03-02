@@ -156,13 +156,6 @@ e.g. `bike.color.should equal('red')`
   * `haveHtml(html)`
     Tests if a jQuery element has the given HTML. HTML is parsed by the browser before comparison, so that things like tag attributes don't have to be in the same order to match.
 
-#### String Matchers
-
-These matchers are created dynamically, and specified using a string (i.e. `input.should 'beChecked'`):
-
-  * `be[Attribute]`
-    Tests that the specified attribute of the class evaluates to true.
-
 ## Stubs
 
 You can stub any method of an extended object using `#shouldReceive`:

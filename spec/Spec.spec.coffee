@@ -1,14 +1,15 @@
 Spec.extend Spec
 
 Spec.describe 'Spec', ->
-  subject 'spec', ->
-    mock()
+  subject 'spec', -> mock()
+  given 'dsl', -> mock(describe: null)
+  before ->
+    @spec.dsl = @dsl
 
   describe '.describe', ->
     before ->
       @spec.describe = Spec.describe
       @spec.stub 'initializeEnvironment'
-      @spec.stub 'reportTestResult'
 
     it 'initializes the environment', ->
       @spec.shouldReceive('initializeEnvironment')
@@ -19,49 +20,10 @@ Spec.describe 'Spec', ->
       @spec.shouldNotReceive('initializeEnvironment')
       @spec.describe()
 
-    context 'when passed a definition', ->
-      it 'displays a new results node'
-
-      it 'constructs a test stack', ->
-        @spec.describe 'foo', ->
-        expect(@spec.testStack).to beAn Array
-        @spec.testStack.length.should == 1
-
-      it 'calls the definition', ->
-        called = expectation 'call the definition'
-        @spec.describe 'foo', ->
-          called.meet()
-
-    context 'when not passed a definition', ->
-      it 'reports the test as pending', ->
-        @spec.shouldReceive('reportTestResult').with('pending')
-        @spec.describe 'foo'
-
-  describe '.descriptionize', ->
-    before ->
-      @spec.descriptionize = Spec.descriptionize
-
-    it 'formats a simple comparison', ->
-      fn = -> should equal('foo')
-      @spec.descriptionize(fn).should equal('should equal foo')
-
-    it 'formats camel cased names into words', ->
-      fn = -> should beAnInteger()
-      @spec.descriptionize(fn).should equal('should be an integer')
-
-    it 'formats something complex with logic', ->
-      fn = -> should be('monkeys') if foo
-      @spec.descriptionize(fn).should equal('if foo it should be monkeys')
-
-  describe '.escape', ->
-    before ->
-      @spec.escape = Spec.escape
-
-    it 'escapes text for HTML', ->
-      text = '<dogs & cats>'
-      html = '&lt;dogs &amp; cats&gt;'
-      @spec.escape(text).should equal(html)
-
+    it 'passes through to dsl', ->
+      @dsl.shouldReceive('describe').with('foo', 'bar')
+      @spec.describe 'foo', 'bar'
+  
   describe '.extend', ->
     before ->
       @klass = ->

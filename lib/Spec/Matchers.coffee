@@ -4,7 +4,7 @@ window.Spec.Matchers =
   # Tests if matched value === expected value
   be: (expected) ->
     (value) ->
-      [value is expected, "to be #{Spec.inspect expected}, actual #{Spec.inspect value}"]
+      [value is expected, "to be #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}"]
 
   # Tests that value type matches specified class
   beA: (klass) ->
@@ -35,15 +35,11 @@ window.Spec.Matchers =
   
   # Tests if matched value is boolean false
   beFalse: (value) ->
-    [String(value) == 'false', "to be false, got #{Spec.inspect value}"]
-
-  # Adds a setup step to the current test case
-  before: (action) ->
-    Spec.currentTest().before.push action
+    [String(value) == 'false', "to be false, got #{Spec.Util.inspect value}"]
   
   # Tests if matched value is boolean true
   beTrue: (value) ->
-    [String(value) == 'true', "to be true, got #{Spec.inspect value}"]
+    [String(value) == 'true', "to be true, got #{Spec.Util.inspect value}"]
   
   # Tests if matched value == expected value
   equal: (expected) ->
@@ -57,7 +53,7 @@ window.Spec.Matchers =
         match = true
         for test in expected
           match = false unless (value.indexOf && value.indexOf(test) >= 0) || value[test]?
-        [match, "to include #{Spec.inspect expected}, actual #{Spec.inspect value}"]
+        [match, "to include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}"]
     else if typeof expected == 'object'
       (value) ->
         missing = {}
@@ -67,7 +63,7 @@ window.Spec.Matchers =
             unless value[test] isnt undefined && String(value[test]) == String(expected[test])
               match = false
               missing[test] = expected[test]
-        [match, "to include #{Spec.inspect expected}, actual #{Spec.inspect value}, missing #{Spec.inspect missing}"]
+        [match, "to include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}, missing #{Spec.Util.inspect missing}"]
     else
       include([expected])
 

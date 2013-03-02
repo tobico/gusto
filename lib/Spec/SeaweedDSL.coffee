@@ -3,40 +3,26 @@ window.Spec ||= {}
 window.Spec.SeaweedDSL =
   # Prepares a sub-test of the current test case
   describe: (title, definition) ->
-    parent = Spec.testStack[Spec.testStack.length - 1]
+    parent = @suite
+    @suite = new Spec.Suite(parent, title, definition)
+    suite.load()
+    @suite = parent
 
-    ul = $('<ul></ul>')
-    switch Spec.Format
-      when 'ul'
-        parent.ul.append($('<li>' + title + '</li>').append(ul))
-      when 'terminal'
-        $('.results').append(Spec.pad(title, parent.ul.depth) + "<br>")
-        ul.depth = parent.ul.depth + 2
-
-    Spec.testStack.push {
-      fail:     -> Spec.fail.apply Spec, arguments
-      title:    title
-      ul:       ul
-      before:   []
-    }
-    definition()
-    Spec.testStack.pop()
+  # Adds a setup step to the current test case
+  before: (action) ->
+    @suite.beforeFilters.push action
 
   # Allows an assertion on a non-object value
   expect: (object) ->
-    {
-      to: (matcher) ->
-        result = Spec.findMatcher(matcher)(object)
-        Spec.fail "expected #{result[1]}" unless result[0]
-      notTo: (matcher) ->
-        result = Spec.findMatcher(matcher)(object)
-        Spec.fail "expected not #{result[1]}" if result[0]
-    }
+    to: (matcher) ->
+      Spec.ObjectExtensions.should.call object, matcher
+    notTo: (matcher) ->
+      Spec.ObjectExtensions.shouldNot.call object, matcher
   
   # Sets up an expectation
   expectation: (message) ->
     exp = new Spec.DelayedExpectation(message)
-    Spec.currentTest().expectations.push exp
+    @test.expectations.push exp
     exp
   
   # Syntactic sugar to create a before method that prepares a variable
@@ -44,14 +30,29 @@ window.Spec.SeaweedDSL =
   # Example:
   #     given 'dog', -> new Dog()
   given: (name, definition) ->
-    throw 'Definition for given must be a function' unless definition.call
-
     before ->
       @[name] = definition.call this
   
   # Creates a specificaition
-  it: (title=null, definition) ->
-    Spec.test title, definition
+  it: (args...) ->
+    switch args.length
+      when 1
+        if typeof args[0] == 'function'
+          # Test with automatically generated title
+          test = new Spec.Test(@suite, args[0], Spec.Util.descriptionize(args[1]))
+          test.run()
+        else
+          # Pending test
+          test = new Spec.Test(@suite, args[0])
+          test.pending = true
+          test.reportResult()
+      when 2
+        # Test with manual title
+        test = new Spec.Test(@suite, args...)
+        test.run()
+  
+  pending: ->
+    @test.pending = true
   
   # Creates a specification that tests an attribute of subject
   #
@@ -59,7 +60,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee('Fred')
   #     its 'name', -> should equal('Fred')
   its: (attribute, definition) ->
-    it "#{attribute} #{Spec.descriptionize definition}", ->
+    it "#{attribute} #{Spec.Util.descriptionize definition}", ->
       value = @subject[attribute]
       value = value.call @subject if typeof value is 'function'
       @subject = value
@@ -71,7 +72,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> should beAnInstanceOf(Employee)
   should: (matcher) ->
-    expect(Spec.currentTest().env.subject).to matcher
+    expect(@test.env.subject).to matcher
 
   # Runs a negative test against @subject
   # 
@@ -79,7 +80,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> shouldNot be(null)
   shouldNot: (matcher) ->
-    expect(Spec.currentTest().env.subject).notTo matcher
+    expect(@test.env.subject).notTo matcher
 
   # Creates a new mock object
   # 

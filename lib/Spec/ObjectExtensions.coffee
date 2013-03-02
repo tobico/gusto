@@ -6,17 +6,17 @@ window.Spec.ObjectExtensions =
     stub = if @[method] && @[method]._stub
       @[method]._stub
     else
-      new Spec.MethodStub(Spec.currentTest(), this, method)
+      new Spec.MethodStub(window.test, this, method)
     stub.possibleCall()
 
   # Tests for a positive match
   should: (matcher) ->
-    result = Spec.findMatcher(matcher)(this)
+    result = matcher(this)
     Spec.fail "expected #{result[1]}" unless result[0]
 
   # Tests for a negative match
   shouldNot: (matcher) ->
-    result = Spec.findMatcher(matcher)(this)
+    result = matcher(this)
     Spec.fail "expected not #{result[1]}" if result[0]
 
   # Creates a stub method with an expectation
