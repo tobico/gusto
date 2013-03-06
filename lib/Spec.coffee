@@ -12,6 +12,9 @@
 
 window.Spec ||= {}
 
+class window.Spec.ExpectationError
+  constructor: (@message) ->
+
 Spec.Util.extend window.Spec,
   EnvironmentInitialized: false
   _extended: []

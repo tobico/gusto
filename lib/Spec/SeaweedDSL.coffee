@@ -35,22 +35,19 @@ window.Spec.SeaweedDSL =
   
   # Creates a specificaition
   it: (args...) ->
-    switch args.length
+    test = switch args.length
       when 1
         if typeof args[0] == 'function'
           # Test with automatically generated title
           test = new Spec.Test(@suite, args[0], Spec.Util.descriptionize(args[1]))
-          test.run()
         else
           # Pending test
-          test = new Spec.Test(@suite, args[0])
-          test.pending = true
-          test.reportResult()
+          test = new Spec.Test(@suite, args[0], -> pending() )
       when 2
         # Test with manual title
         test = new Spec.Test(@suite, args...)
-        test.run()
-  
+    test && test.run this
+    
   pending: ->
     @test.pending = true
   

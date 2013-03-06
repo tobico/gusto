@@ -128,19 +128,19 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
 
   describe '#matchesArguments', ->
     it 'is true if no required arguments', ->
-      @call.matchesArguments().should beTrue
+      @call.matchesArguments().should equal true
 
     it 'is false if length of expected arguments is different', ->
       @call.with 'foo'
-      @call.matchesArguments('foo', 'bar').should beFalse
+      @call.matchesArguments('foo', 'bar').should equal false
 
     it 'is false if one of the arguments is different', ->
       @call.with 'foo', 'bar'
-      @call.matchesArguments('foo', 'zap').should beFalse
+      @call.matchesArguments('foo', 'zap').should equal false
 
     it 'is true if all arguments the same', ->
       @call.with 'foo', 'bar'
-      @call.matchesArguments(['foo', 'bar']).should beTrue
+      @call.matchesArguments(['foo', 'bar']).should equal true
 
   describe '#call', ->
     given 'object', -> mock 'object'

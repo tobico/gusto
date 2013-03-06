@@ -7,26 +7,26 @@ class window.Spec.Test
     @env = {}
     @expectations = []
 
-  run: ->
-    # Start error catching; we do this on window instead of using
-    # JS error handling because it catches the error on more browsers
-    # and gives better debug information
-    window.onerror = (message, url, line) =>
-      @fail message, "#{url.replace(document.location, '')}:#{line}"
-      @finish()
+  run: (root) ->
+    try
+      root.test = this
+      @suite.runBeforeFilters @env
+      @definition.call @env
+      @_checkExpectations()
 
-    window.test = this
-    @suite.runBeforeFilters @env
-    @definition.call @env
-    @finish()
+    catch e
+      stack = printStackTrace()
+      stack.shift() while stack[0].match /(printStackTrace)/
+      @failed = true
 
-  fail: (message, location) ->
-    @failed = true
+      @_reportError
+        title:    @fullTitle()
+        message:  e.message
+        stack:    stack
 
-    @reportError
-      title:    @fullTitle()
-      message:  message
-      location: location
+    finally
+      delete root.test = null
+      @_reportResult()
 
   fullTitle: ->
     "#{@suite.fullTitle()} #{@title}"
@@ -39,16 +39,11 @@ class window.Spec.Test
     else
       'passed'
 
-  finish: ->
+  _checkExpectations: ->
     for expectation in @expectations
       expectation.check this
 
-    window.onerror = -> null
-    window.test = null
-
-    @reportResult()
-
-  reportResult: ->
+  _reportResult: ->
     switch Spec.Format
       when 'ul'
         @suite.ul.append '<li class="' + @result() + '">' + @title + '</li>'
@@ -59,5 +54,5 @@ class window.Spec.Test
           when 'pending' then 33
         $('.results').append Spec.pad("&#x1b;[#{color}m#{@title}&#x1b;[0m<br>", @suite.depth)
 
-  reportError: (data) ->
+  _reportError: (data) ->
     console.log 'error', data
