@@ -145,16 +145,10 @@ e.g. `bike.color.should equal('red')`
     Compares string representations of actual and expected values
   * `be(expectedValue)`
     Directly compares actual value with expected value using `is`
-  * `beA(class)`
+  * `beA(class) / beAn(class)`
     Tests that the value is a kind of the specifed class; for the five primitive JS types (Boolean, Function, Number, String, Object) this uses `haveType`, otherwise it uses `beAnInstanceOf`
-  * `beAnInstanceOf(expectedClass)`
-    Tests if value is an instance of expected class
-  * `beTrue` and `beFalse`
-    Tests if value is boolean true or boolean false
   * `include(values)`
     Tests if an object or an array includes the specified value(s). (values can be an object, an array, or a single string/boolean/number)
-  * `haveHtml(html)`
-    Tests if a jQuery element has the given HTML. HTML is parsed by the browser before comparison, so that things like tag attributes don't have to be in the same order to match.
 
 ## Stubs
 
