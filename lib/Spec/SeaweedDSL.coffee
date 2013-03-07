@@ -3,10 +3,9 @@ window.Spec ||= {}
 window.Spec.SeaweedDSL =
   # Prepares a sub-test of the current test case
   describe: (title, definition) ->
-    parent = @suite
-    @suite = new Spec.Suite(parent, title, definition)
-    suite.load()
-    @suite = parent
+    suite = new Spec.Suite(@suite, title, definition)
+    suite.load this
+    @suite.addSuite suite if @suite
 
   # Adds a setup step to the current test case
   before: (action) ->
@@ -41,17 +40,17 @@ window.Spec.SeaweedDSL =
       when 1
         if typeof args[0] == 'function'
           # Test with automatically generated title
-          new Spec.Test(@suite, args[0], Spec.Util.descriptionize(args[1]))
+          new Spec.Test(args[0], Spec.Util.descriptionize(args[1]))
         else
           # Pending test
-          new Spec.Test(@suite, args[0], -> pending() )
+          new Spec.Test(args[0], -> pending() )
       when 2
         # Test with manual title
-        new Spec.Test(@suite, args...)
-    test && test.run this
-    
+        new Spec.Test(args...)
+    @suite.addTest test if test
+  
   pending: ->
-    @test.pending = true
+    @test.pending()
   
   # Creates a specification that tests an attribute of subject
   #

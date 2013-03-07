@@ -1,37 +1,49 @@
 class window.Spec.Suite
   constructor: (@parent, @title, @definition) ->
-    @ul = $('<ul></ul>')
-    switch Spec.Format
-      when 'ul'
-        @parentUl().append($("<li>#{@title}</li>").append(@ul))
-      when 'terminal'
-        $('.results').append(Spec.pad("#{@title}<br>", @parent.depth))
-        @depth = @parentDepth() + 1
-    
-    @beforeFilters = []
+    @beforeFilters  = []
+    @suites         = []
+    @suiteReports   = []
+    @tests          = []
+    @testReports    = []
+    @status         = 'passed'
 
-  parentUl: ->
-    if @parent
-      @parent.ul
-    else
-      $ '.results'
-
-  parentDepth: ->
-    if @parent
-      @parent.depth
-    else
-      0
-
-  fullTitle: ->
-    if @parent
-      "#{@parent.fullTitle()} #{@title}"
-    else
-      @title
-
-  load: ->
+  load: (root) ->
+    root.suite = this
     @definition()
+    root.suite = @parent
+
+  addTest: (test) ->
+    @tests.push test
+
+  addSuite: (suite) ->
+    @suites.push suite
 
   runBeforeFilters: (env) ->
     @parent.runBeforeFilters(env) if @parent
     for filter in @beforeFilters
       filter.call env
+
+  run: ->
+    for test in @tests
+      @runBeforeFilters test.env
+      test.run window
+      @testReports.push test.report()
+      @_updateStatus test.status
+
+    for suite in @suites
+      suite.run()
+      @suiteReports.push suite.report()
+      @_updateStatus suite.status
+
+  _updateStatus: (status) ->
+    switch status
+      when 'failed'
+        @status = 'failed'
+      when 'pending'
+        @status = 'pending' unless @status is 'failed'
+
+  report: ->
+    title:  @title
+    status: @status
+    tests:  @testReports
+    suites: @suiteReports
