@@ -43,7 +43,7 @@ window.Spec.Util =
           first = false
         else
           first += ', '
-        s += '&ldquo;' + @escape(String(item)) + '&rdquo;'
+        s += "“#{@escape(String(item))}”"
       s + ']'
     else if object is null
       'null'
@@ -64,10 +64,10 @@ window.Spec.Util =
             first = false
           else
             s += ", "
-          s += @escape(key) + ': &ldquo;' + @escape(String(object[key])) + '&rdquo;'
+          s += @escape(key) + ': “' + @escape(String(object[key])) + '”'
       s + "}"
     else
-      "&ldquo;#{@escape(object)}&rdquo;"
+      "“#{@escape(object)}”"
 
   # Escapes text for HTML
   escape: (string) ->
