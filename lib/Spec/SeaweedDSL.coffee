@@ -41,13 +41,13 @@ window.Spec.SeaweedDSL =
       when 1
         if typeof args[0] == 'function'
           # Test with automatically generated title
-          test = new Spec.Test(@suite, args[0], Spec.Util.descriptionize(args[1]))
+          new Spec.Test(@suite, args[0], Spec.Util.descriptionize(args[1]))
         else
           # Pending test
-          test = new Spec.Test(@suite, args[0], -> pending() )
+          new Spec.Test(@suite, args[0], -> pending() )
       when 2
         # Test with manual title
-        test = new Spec.Test(@suite, args...)
+        new Spec.Test(@suite, args...)
     test && test.run this
     
   pending: ->

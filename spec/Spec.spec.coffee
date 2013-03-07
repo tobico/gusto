@@ -26,12 +26,12 @@ Spec.describe 'Spec', ->
   
   describe '.extend', ->
     before ->
-      @klass = ->
-      @instance = new @klass
-      @extensions = mock(foo: null)
-      @spec.ObjectExtensions = @extensions
-      @spec.extend = Spec.extend
-      @spec._extended = []
+      @klass                  = ->
+      @instance               = new @klass
+      @extensions             = mock(foo: null)
+      @spec.ObjectExtensions  = @extensions
+      @spec.extend            = Spec.extend
+      @spec._extended         = []
       @spec.extend @klass
 
     it 'records class as extended', ->

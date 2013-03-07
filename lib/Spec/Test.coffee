@@ -49,8 +49,8 @@ class window.Spec.Test
         @suite.ul.append '<li class="' + @result() + '">' + @title + '</li>'
       when 'terminal'
         color = switch @result()
-          when 'passed' then 32
-          when 'failed' then 31
+          when 'passed'  then 32
+          when 'failed'  then 31
           when 'pending' then 33
         $('.results').append Spec.pad("&#x1b;[#{color}m#{@title}&#x1b;[0m<br>", @suite.depth)
 

@@ -1,8 +1,8 @@
 Spec.extend Spec.Test
 
 Spec.describe 'Spec.Test', ->
-  given 'ul', -> mock 'ul', append: null
-  given 'suite', -> mock 'suite', runBeforeFilters: null
+  given 'ul',         -> mock 'ul', append: null
+  given 'suite',      -> mock 'suite', runBeforeFilters: null
   given 'definition', -> mock 'definition', call: null
   before -> @suite.ul = @ul
 

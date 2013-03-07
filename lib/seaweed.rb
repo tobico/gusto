@@ -21,9 +21,9 @@ module Seaweed
   
   def self.load_configuration
     # Set configuration defaults
-    @configuration['port']    = 4567
-    @configuration['libs']    = ['lib']
-    @configuration['specs']   = ['spec']
+    @configuration['port']  = 4567
+    @configuration['libs']  = ['lib']
+    @configuration['specs'] = ['spec']
     
     # Load custom configuration file
     CONFIG_PATHS.each do |path|
@@ -142,7 +142,7 @@ module Seaweed
   def self.shut_down(status=0)
     @listener.stop if @listener
     @browser.close if @browser
-    @server.exit if @server
+    @server.exit   if @server
     exit status
   end
 

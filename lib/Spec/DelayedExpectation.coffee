@@ -6,13 +6,13 @@ window.Spec ||= {}
 # To set a delayed expectation use window.expectation
 class window.Spec.DelayedExpectation
   constructor: (@message) ->
-    @met = 0
-    @desired = 1
+    @met      = 0
+    @desired  = 1
 
   # Specifies that this expectation must be met twice to count
   # as a success.
   twice: ->
-    @desired = 2
+    @desired  = 2
     this
 
   # Specifies how many times this expectation should be run to

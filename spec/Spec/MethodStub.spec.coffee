@@ -1,8 +1,8 @@
 Spec.extend Spec.MethodStub, Spec.MethodStub.PossibleCall
 
 Spec.describe 'Spec.MethodStub', ->
-  given 'method', -> ->
-  given 'object', -> {foo: @method}
+  given   'method',     -> ->
+  given   'object',     -> {foo: @method}
   subject 'methodStub', -> new Spec.MethodStub(@object, 'foo')
 
   describe 'constructor', ->
@@ -20,7 +20,7 @@ Spec.describe 'Spec.MethodStub', ->
       @object.foo._stub.should be @methodStub
 
   describe 'stub method', ->
-    given 'matchingPossibleCall', -> mock(matchesArguments: true, call: null)
+    given 'matchingPossibleCall',    -> mock(matchesArguments: true, call: null)
     given 'nonMatchingPossibleCall', -> mock(matchesArguments: false, call: null)
 
     context 'with multiple possible calls', ->
@@ -72,8 +72,8 @@ Spec.describe 'Spec.MethodStub', ->
       @methodStub.possibleCalls[0].should be second
 
 Spec.describe 'Spec.MethodStub.PossibleCall', ->
-  given 'original', -> -> "I'm the original method"
-  subject 'call', ->
+  given   'original', -> -> "I'm the original method"
+  subject 'call',     ->
     new Spec.MethodStub.PossibleCall(@original)
 
   describe '#with', ->

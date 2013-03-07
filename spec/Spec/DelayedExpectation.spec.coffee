@@ -1,11 +1,11 @@
 Spec.extend Spec.DelayedExpectation
 
 Spec.describe 'Spec.DelayedExpectation', ->
-  given 'message', -> 'foo'
+  given   'message',     -> 'foo'
   subject 'expectation', -> new Spec.DelayedExpectation(@message)
 
   describe 'a new DelayedExpectation', ->
-    its 'met', -> should equal 0
+    its 'met',     -> should equal 0
     its 'desired', -> should equal 1
     its 'message', -> should equal @message
 
