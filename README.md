@@ -149,6 +149,8 @@ e.g. `bike.color.should equal('red')`
     Tests that the value is a kind of the specifed class; for the five primitive JS types (Boolean, Function, Number, String, Object) this uses `haveType`, otherwise it uses `beAnInstanceOf`
   * `include(values)`
     Tests if an object or an array includes the specified value(s). (values can be an object, an array, or a single string/boolean/number)
+  * `throwError(message)`
+    Tests if a function causes an error to be thrown when called.
 
 ## Stubs
 

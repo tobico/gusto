@@ -41,6 +41,20 @@ window.Spec.Matchers =
         [match, "to include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}, missing #{Spec.Util.inspect missing}"]
     else
       include([expected])
+  
+  # Tests if a function causes an error to be thrown when called
+  throwError: (message) ->
+    (fn) ->
+      thrown = false
+      try
+        fn()
+      catch e
+        thrown = e.message
+      finally
+        if thrown
+          return [thrown == message, "to throw an error with message “#{String thrown}”, actual message “#{String message}” – #{$.trim diffString(String(thrown), String(message))}"]
+        else
+          return [false, "to throw an error with message “#{message}”, no error thrown"]
 
   # Tests a value type using typeof
   _haveType: (type) ->
