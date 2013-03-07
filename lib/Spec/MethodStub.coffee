@@ -7,13 +7,13 @@ window.Spec ||= {}
 # These are created using window#stub, window#shouldReceive and
 # window#shouldNotReceive. You shouldn't need to create one manually.
 class window.Spec.MethodStub
-  constructor: (@test, @object, @method) ->
+  constructor: (@object, @method) ->
     @possibleCalls = []
     @_replaceMethodOnObject()
 
   # Makes a new PossibleCall and adds it to the list
   possibleCall: ->
-    call = new Spec.MethodStub.PossibleCall(@test, @original)
+    call = new Spec.MethodStub.PossibleCall(@original)
     @possibleCalls.unshift call
     call
 
@@ -47,7 +47,7 @@ class window.Spec.MethodStub
 # Represents a possible call path for a MethodStub - that is a combination
 # of expected arguments and return values.
 class window.Spec.MethodStub.PossibleCall
-  constructor: (@test, @original) ->
+  constructor: (@original) ->
 
   # Defines the expected arguments for this PossibleCall. By default a
   # PossibleCall will accept any or no arguments. When you specify arguments
@@ -115,11 +115,13 @@ class window.Spec.MethodStub.PossibleCall
     true
 
   _failOnInvalidArguments: (method, args) ->
-    @test.fail("expected ##{method} to be called#{@_argumentsString()}, " +
-      "actual arguments: &ldquo;#{args.join ', '}&rdquo;")
+    throw new Spec.ExpectationError(
+      "expected ##{method} to be called#{@_argumentsString()}, " +
+      "actual arguments: “#{args.join ', '}”"
+    )
 
   _argumentsString: ->
     if @arguments
-      " with arguments &ldquo;#{@arguments.join ', '}&rdquo;"
+      " with arguments “#{@arguments.join ', '}”"
     else
       ''

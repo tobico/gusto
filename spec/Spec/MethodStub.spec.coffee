@@ -1,10 +1,9 @@
 Spec.extend Spec.MethodStub, Spec.MethodStub.PossibleCall
 
 Spec.describe 'Spec.MethodStub', ->
-  given 'test', -> mock 'test'
   given 'method', -> ->
   given 'object', -> {foo: @method}
-  subject 'methodStub', -> new Spec.MethodStub(@test, @object, 'foo')
+  subject 'methodStub', -> new Spec.MethodStub(@object, 'foo')
 
   describe 'constructor', ->
     it 'stashes the original method', ->
@@ -59,9 +58,6 @@ Spec.describe 'Spec.MethodStub', ->
     it 'returns a new possible call', ->
       @methodStub.possibleCall().should beA Spec.MethodStub.PossibleCall
 
-    it 'assigns test for possible call', ->
-      @methodStub.possibleCall().test.should be @test
-
     it 'assigns original method for possible call', ->
       @methodStub.possibleCall().original.should be @methodStub.original
 
@@ -76,10 +72,9 @@ Spec.describe 'Spec.MethodStub', ->
       @methodStub.possibleCalls[0].should be second
 
 Spec.describe 'Spec.MethodStub.PossibleCall', ->
-  given 'test', -> mock 'test'
   given 'original', -> -> "I'm the original method"
   subject 'call', ->
-    new Spec.MethodStub.PossibleCall(@test, @original)
+    new Spec.MethodStub.PossibleCall(@original)
 
   describe '#with', ->
     it 'sets @arguments to an array of arguments', ->
@@ -161,6 +156,7 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
       before ->
         @call.with 'foo'
 
-      it 'fails with an message about invalid arguments', ->
-        @test.shouldReceive('fail').with('expected #awesomize to be called with arguments &ldquo;foo&rdquo;, actual arguments: &ldquo;bar&rdquo;')
-        @call.call @object, 'awesomize', ['bar']
+      it 'throws an error', ->
+        (=>
+          @call.call @object, 'awesomize', ['bar']
+        ).should throwError 'expected #awesomize to be called with arguments “foo”, actual arguments: “bar”'
