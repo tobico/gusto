@@ -11,13 +11,11 @@ window.Spec.ObjectExtensions =
 
   # Tests for a positive match
   should: (matcher) ->
-    result = matcher(this)
-    throw new Spec.ExpectationError("expected #{result[1]}") unless result[0]
+    expect(this).to matcher
 
   # Tests for a negative match
   shouldNot: (matcher) ->
-    result = matcher(this)
-    throw new Spec.ExpectationError("expected not #{result[1]}") if result[0]
+    expect(this).notTo matcher
 
   # Creates a stub method with an expectation
   shouldReceive: (method) ->

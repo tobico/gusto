@@ -15,9 +15,11 @@ window.Spec.SeaweedDSL =
   # Allows an assertion on a non-object value
   expect: (object) ->
     to: (matcher) ->
-      Spec.ObjectExtensions.should.call object, matcher
+      result = matcher(object)
+      throw new Spec.ExpectationError("expected #{result[1]}") unless result[0]
     notTo: (matcher) ->
-      Spec.ObjectExtensions.shouldNot.call object, matcher
+      result = matcher(object)
+      throw new Spec.ExpectationError("expected not #{result[1]}") if result[0]
   
   # Sets up an expectation
   expectation: (message) ->

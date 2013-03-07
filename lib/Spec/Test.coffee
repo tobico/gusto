@@ -20,16 +20,13 @@ class window.Spec.Test
       @failed = true
 
       @_reportError
-        title:    @fullTitle()
+        title:    @_fullTitle()
         message:  e.message
         stack:    stack
 
     finally
-      delete root.test = null
+      root.test = null
       @_reportResult()
-
-  fullTitle: ->
-    "#{@suite.fullTitle()} #{@title}"
 
   result: ->
     if @pending
@@ -38,6 +35,9 @@ class window.Spec.Test
       'failed'
     else
       'passed'
+
+  _fullTitle: ->
+    "#{@suite.fullTitle()} #{@title}"
 
   _checkExpectations: ->
     for expectation in @expectations
