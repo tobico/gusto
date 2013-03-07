@@ -49,7 +49,6 @@ Spec.describe 'Spec.Test', ->
 
     it 'sets root.test to null after calling definition', ->
       @test.run @root
-      console.log @root, @root.test
       expect(@root.test).to be null
 
     context 'when the test passes', ->

@@ -17,17 +17,16 @@ class window.Spec.ExpectationError
 
 Spec.Util.extend window.Spec,
   EnvironmentInitialized: false
-  _extended: []
-  
-  dsl: window
+  Suites:                 []
+  _extended:              []
+  dsl:                    window
   
   # Executes a test case
   describe: (title, definition) ->
     @initializeEnvironment() unless @EnvironmentInitialized
     suite = new Spec.Suite(null, title, definition)
     suite.load window
-    suite.run()
-    console.log suite.report()
+    @Suites.push suite
   
   # Extends one or more classes with test methods
   extend: ->
