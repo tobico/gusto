@@ -1,0 +1,36 @@
+@import "colors"
+
+.result-summary
+  background: lighten($lesspink, 40%)
+  height: 70px
+
+.result-summary--count
+  position: relative
+  float: left
+  height: 70px
+  font-weight: bold
+  width: 120px
+
+.result-summary--total
+  background: lighten($lesspink, 20%)
+
+.result-summary--passed
+  background: lighten($green, 15%)
+
+.result-summary--pending
+  background: lighten($orange, 15%)
+
+.result-summary--failed
+  background: lighten($red, 15%)
+
+.result-summary--label
+  position: absolute
+  left: 15px
+  top: 6px
+  font-size: 10px
+
+.result-summary--number
+  position: absolute
+  left: 15px
+  top: 36px
+  font-size: 38px

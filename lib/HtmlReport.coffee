@@ -6,13 +6,15 @@ class HtmlReport
     root.run()
     @report = root.report()
 
-    @html = '<header>' +
-      '<div id="total-count">' + @report.counts.total + '</div>' +
-      '<div id="passed-count">' + @report.counts.passed + '</div>' +
-      '<div id="pending-count">' + @report.counts.pending + '</div>' +
-      '<div id="failed-count">' + @report.counts.failed + '</div>' +
-      '</header>'
-    @html += '<section><ul>'
+    @html = '<header class="result-summary">'
+    
+    for count in 'total passed pending failed'.split(' ')
+      @html += "<div class=\"result-summary--count result-summary--#{count}\">" +
+        "<span class=\"result-summary--label\">#{count.toUpperCase()}</span>" +
+        "<span class=\"result-summary--number\">#{@report.counts[count]}</span>" +
+        '</div>'
+
+    @html += '</header><section><ul>'
     for suite in @report.suites
       @_renderSuiteReport(suite)
     @html += '</ul></section>'

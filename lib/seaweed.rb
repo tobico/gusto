@@ -5,7 +5,6 @@ require 'sprockets'
 require 'net/http'
 require 'rack'
 require 'yaml'
-require 'selenium/webdriver'
 require File.join(File.dirname(__FILE__), 'seaweed', 'version')
 
 module Seaweed
@@ -83,6 +82,7 @@ module Seaweed
   def self.sprockets_environment
     @environment ||= Sprockets::Environment.new.tap do |environment|
       environment.append_path File.join(Seaweed::ROOT, 'lib')
+      environment.append_path File.join(Seaweed::ROOT, 'assets')
       all_paths.each do |path|
         environment.append_path path
       end
@@ -119,6 +119,7 @@ module Seaweed
     if @browser
       @browser.navigate.refresh
     else
+      require 'selenium/webdriver'
       @browser = Selenium::WebDriver.for :firefox, profile: Selenium::WebDriver::Firefox::Profile.new
       @browser.get "#{root_url}#terminal"
     end
