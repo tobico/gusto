@@ -1,46 +1,46 @@
-class HtmlReport
-  constructor: ->
+class window.HtmlReport
+  constructor: (element) ->
+    @element = element
+
+  run: ->
     root = new Spec.Suite()
     for suite in Spec.Suites
       root.addSuite suite
     root.run()
     @report = root.report()
+    @element.innerHTML = @html()
 
-    @html = '<header class="result-summary">'
-    
+  html: ->
+    @_resultSummary() + @_testResults()
+
+  _resultSummary: ->
+    html = '<header class="result-summary">'
     for count in 'total passed pending failed'.split(' ')
-      @html += "<div class=\"result-summary--count result-summary--#{count}\">" +
+      html += "<div class=\"result-summary--count result-summary--#{count}\">" +
         "<span class=\"result-summary--label\">#{count.toUpperCase()}</span>" +
         "<span class=\"result-summary--number\">#{@report.counts[count]}</span>" +
         '</div>'
+    html + '</header>'
 
-    @html += '</header><section><ul>'
+  _testResults: ->
+    html = '<section class="test-results"><ul class="test-results--list">'
     for suite in @report.suites
-      @_renderSuiteReport(suite)
-    @html += '</ul></section>'
+      html += @_suiteReport(suite)
+    html + '</ul></section>'
 
-  _renderSuiteReport: (report) ->
+  _suiteReport: (report) ->
     if report.counts.total == 1
-      @html += '<li class="' + report.status + '">' + 
-      '<div class="title">' + report.title + ': ' +
-      report.tests[0].title + '</div></li>'
-    else
-      @html += '<li class="suite ' + report.status + '">' + 
-        '<div class="title">' + report.title + '</div> '
-      if report.counts.total > 1
-        @html += '<div class="count">' + report.counts.total + '</div>'
-      if report.tests.length || report.suites.length
-        @html += '<ul>'
-        for suite in report.suites
-          @_renderSuiteReport suite
-        for test in report.tests
-          @_renderTestReport test
-        @html += '</ul>'
-      @html += '</li>'
+      @_testReport report.status, "#{report.title}: #{report.tests[0].title}"
+    else if report.counts.total > 1
+      html = '<li class="test-results--suite test-results--suite--' + report.status + '">' +
+        '<div class="test-results--title">' + report.title + '</div> '
+      html += '<ul class="test-results--list">'
+      for suite in report.suites
+        html += @_suiteReport(suite)
+      for test in report.tests
+        html += @_testReport(test.status, test.title)
+      html + '</ul></li>'
 
-  _renderTestReport: (report) ->
-    @html += '<li class="' + report.status + '">' + 
-      '<div class="title">' + report.title + '</div></li>'
-
-report = new HtmlReport()
-$('body').html report.html
+  _testReport: (status, title) ->
+    '<li class="test-results--test test-results--test--' + status + '">' +
+      '<div class="test-results--title">' + title + '</div></li>'

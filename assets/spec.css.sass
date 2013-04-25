@@ -1,5 +1,6 @@
 @import "colors"
 @import "result_summary"
+@import "test_results"
 
 body
   font: 16px/20px Helvetica, Arail, sans-serif
@@ -7,74 +8,6 @@ body
   color: darken($pink, 35%)
   padding: 0
   margin: 0
-
-ul
-  position: relative
-  list-style: none
-  margin: 0 0 0 20px
-  padding: 0 0 0 10px
-
-li
-  position: relative
-  margin: 0
-  padding: 0
-  border-top: solid 1px lighten($pink, 45%)
-  background: $background
-
-  .failed
-    background: lighten($red, 45%)
-
-  .pending
-    background: lighten($orange, 40%)
-
-/* gutter */
-li:before
-  content: ''
-  position: absolute
-  top: -1px
-  left: -30px
-  width: 20px
-  height: auto
-  bottom: 0
-  padding: 5px
-  text-align: center
-  // border-right: solid 1px lighten($lesspink, 30%)
-  background: $gutter
-
-@mixin gutter-colors($color)
-  color: darken($color, 30%)
-  background: lighten($color, 15%)
-  // border-right-color: darken($color, 10%)
-
-.failed:before
-  +gutter-colors($red)
-  content: '✘'
-
-.passed:before
-  +gutter-colors($green)
-  content: '✔'
-
-.pending:before
-  +gutter-colors($orange)
-  content: '➤'
-
-
-div.title
-  padding: 5px 0
-  text-indent: 10px
-
-li.suite>ul
-  margin-top: 5px
-
-.errors
-  border-collapse: collapse
-
-.errors td, .errors th
-  padding: 4px
-
-.errors th
-  text-align: left
-  background: #eee
 
 del, ins
   margin: 0 0.2em
@@ -85,9 +18,3 @@ del
 
 ins
   color: #090
-
-li.suite
-  position: relative
-
-li.suite>.count
-  display: none
