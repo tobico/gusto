@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 require 'sinatra'
+require 'sass'
 require 'slim'
 require 'coffee-script'
 require File.expand_path(File.dirname(__FILE__) + '/../seaweed')
@@ -16,7 +17,7 @@ module Seaweed
 
     # Hide redundant log messages
     disable :logging
-    
+
     # Processes request for page index
     get "/" do
       # Fetch list of all specification files in specs path
@@ -26,7 +27,7 @@ module Seaweed
           @scripts << $1 if file.match Regexp.new("^#{Regexp.escape Seaweed::PROJECT_ROOT}\\/#{Regexp.escape path}\\/(.*).coffee$")
         end
       end
-      
+
       render :slim, :index
     end
   end
