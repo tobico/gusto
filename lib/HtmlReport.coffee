@@ -48,7 +48,7 @@ class window.HtmlReport
 
   _errorReport: (error) ->
     if error?
-      '<div class="test-results--error-message">' + error.message + '</div>'
+      '<div class="test-results--error-message">' + error + '</div>'
     else
       ''
 
