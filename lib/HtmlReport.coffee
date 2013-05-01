@@ -30,7 +30,7 @@ class window.HtmlReport
 
   _suiteReport: (report) ->
     if report.counts.total == 1
-      @_testReport report.status, "#{report.title}: #{report.tests[0].title}"
+      @_testReport report, "#{report.title}: #{report.tests[0].title}"
     else if report.counts.total > 1
       html = '<li class="test-results--suite test-results--suite--' + report.status + '">' +
         '<div class="test-results--title">' + report.title + '</div> '
@@ -38,9 +38,17 @@ class window.HtmlReport
       for suite in report.suites
         html += @_suiteReport(suite)
       for test in report.tests
-        html += @_testReport(test.status, test.title)
+        html += @_testReport(test, test.title)
       html + '</ul></li>'
 
-  _testReport: (status, title) ->
-    '<li class="test-results--test test-results--test--' + status + '">' +
-      '<div class="test-results--title">' + title + '</div></li>'
+  _testReport: (test, title) ->
+    '<li class="test-results--test test-results--test--' + test.status + '">' +
+      '<div class="test-results--title">' + title + '</div>' +
+      @_errorReport(test.error) + '</li>'
+
+  _errorReport: (error) ->
+    if error?
+      '<div class="test-results--error-message">' + error.message + '</div>'
+    else
+      ''
+

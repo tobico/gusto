@@ -17,6 +17,20 @@
   padding: 5px 0
   text-indent: 10px
 
+.test-results--error-message
+  position:       absolute
+  top:            5px
+  right:          15px
+  font-style:     italic
+  font-size:      14px
+  color:          desaturate(lighten($black, 10%), 80%)
+
+.test-results--title, .test-results--error-message
+  max-width:      50%
+  overflow:       hidden
+  white-space:    nowrap
+  text-overflow:  ellipsis
+
 .test-results--suite--failed
   background: lighten($red, 45%)
 
