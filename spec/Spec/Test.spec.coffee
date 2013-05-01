@@ -9,11 +9,8 @@ Spec.describe 'Spec.Test', ->
   subject 'test', -> new Spec.Test(@suite, 'test', @definition)
 
   describe 'a new test', ->
-    it 'sets pending to false', ->
-      @test.pending.should equal false
-
-    it 'sets failed to false', ->
-      @test.failed.should equal false
+    it 'has status of passed', ->
+      @test.status.should equal 'passed'
 
     it 'creates an empty object for env', ->
       @test.env.should == {}
@@ -21,7 +18,7 @@ Spec.describe 'Spec.Test', ->
     it 'creates an empty array for expectations', ->
       @test.env.should == []
 
-  describe 'run', ->
+  describe '#run', ->
     given 'root', -> mock 'root'
 
     it 'sets root.test to self before calling definition', ->
@@ -63,14 +60,15 @@ Spec.describe 'Spec.Test', ->
       it 'reports error message'
       it 'reports stack trace'
 
-  describe '#result', ->
-    context 'when test is pending', ->
-      before -> @test.pending = true
-      its 'result', -> should equal 'pending'
+  describe '#pending', ->
+    it 'sets the test status to pending', ->
+      @test.pending()
+      @test.status.should equal 'pending'
 
-    context 'when test has failed', ->
-      before -> @test.failed = true
-      its 'result', -> should equal 'failed'
-
-    context 'when test has not failed', ->
-      its 'result', -> should equal 'passed'
+  describe '#report', ->
+    it 'returns a report hash', ->
+      @test.report().should equal {
+        title:  'test'
+        status: 'passed'
+        error:  null
+      }

@@ -1,31 +1,27 @@
 class window.Spec.Test
   constructor: (@title, @definition) ->
-    @status         = 'passed'
-    @error          = null
-    @env            = {}
-    @expectations   = []
 
-  run: (root) ->
+  run: (root, env) ->
+    report =
+      title:  @title
+      status: 'passed'
     try
+      @expectations = []
       root.test = this
-      @definition.call @env
-      @_checkExpectations()
-    catch e
-      @status = 'failed'
-      @error =
-        message:  e.message
-        stack:    printStackTrace()
-    finally
-      root.test = null
+      @definition.call env
+      @_assertExpectations()
+    catch error
+      report.status = @_errorStatus(error)
+      report.error  = error.message
+      # report.stack  = printStackTrace()
+    report
 
-  pending: ->
-    @status = 'pending'
-
-  report: ->
-    title:  @title
-    status: @status
-    error:  @error
-
-  _checkExpectations: ->
+  _assertExpectations: ->
     for expectation in @expectations
-      expectation.check this
+      expectation.assert()
+
+  _errorStatus: (error) ->
+    if error instanceof Spec.PendingError
+      'pending'
+    else
+      'failed'

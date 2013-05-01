@@ -31,13 +31,13 @@ class window.Spec.Suite
   run: ->
     for test in @tests
       @runBeforeFilters test.env
-      test.run window
-      @testReports.push test.report()
-      @_updateStatus test.status
+      report = test.run(window, test.env)
+      @testReports.push report
+      @_updateStatus report.status
       @counts.total   += 1
-      @counts.passed  += 1 if test.status is 'passed'
-      @counts.pending += 1 if test.status is 'pending'
-      @counts.failed  += 1 if test.status is 'failed'
+      @counts.passed  += 1 if report.status is 'passed'
+      @counts.pending += 1 if report.status is 'pending'
+      @counts.failed  += 1 if report.status is 'failed'
 
     for suite in @suites
       suite.run()

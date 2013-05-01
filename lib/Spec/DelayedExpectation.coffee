@@ -28,11 +28,10 @@ class window.Spec.DelayedExpectation
   meet: ->
     @met += 1
 
-  # Checks if this expecation has been met, and fails the given test
-  # unless it's been met the right number of times.
-  check: (test) ->
+  # Raises an error unless this expecation has been met the right number of times.
+  assert: ->
     unless @met is @desired
-      test.fail "expected to #{@message} #{@_timesString @desired}, actually happened #{@_timesString @met}"
+      throw new Spec.ExpectationError("expected to #{@message} #{@_timesString @desired}, actually happened #{@_timesString @met}")
 
   _timesString: (times) ->
     switch times

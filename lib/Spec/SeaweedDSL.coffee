@@ -19,13 +19,13 @@ window.Spec.SeaweedDSL =
     notTo: (matcher) ->
       result = matcher(object)
       throw new Spec.ExpectationError("expected not #{result[1]}") if result[0]
-  
+
   # Sets up an expectation
   expectation: (message) ->
     exp = new Spec.DelayedExpectation(message)
     @test.expectations.push exp
     exp
-  
+
   # Syntactic sugar to create a before method that prepares a variable
   #
   # Example:
@@ -33,7 +33,7 @@ window.Spec.SeaweedDSL =
   given: (name, definition) ->
     before ->
       @[name] = definition.call this
-  
+
   # Creates a specificaition
   it: (args...) ->
     test = switch args.length
@@ -48,10 +48,10 @@ window.Spec.SeaweedDSL =
         # Test with manual title
         new Spec.Test(args...)
     @suite.addTest test if test
-  
-  pending: ->
-    @test.pending()
-  
+
+  pending: (message=null) ->
+    throw new Spec.PendingError(message)
+
   # Creates a specification that tests an attribute of subject
   #
   # Example:
@@ -63,9 +63,9 @@ window.Spec.SeaweedDSL =
       value = value.call @subject if typeof value is 'function'
       @subject = value
       definition.call this
-  
+
   # Runs a test against @subject
-  # 
+  #
   # Example
   #     subject -> new Employee()
   #     it -> should beAnInstanceOf(Employee)
@@ -73,7 +73,7 @@ window.Spec.SeaweedDSL =
     expect(@test.env.subject).to matcher
 
   # Runs a negative test against @subject
-  # 
+  #
   # Example
   #     subject -> new Employee()
   #     it -> shouldNot be(null)
@@ -81,7 +81,7 @@ window.Spec.SeaweedDSL =
     expect(@test.env.subject).notTo matcher
 
   # Creates a new mock object
-  # 
+  #
   # Pass in a hash of method stubs to add to your mock.
   #
   # `mock(boots: 'cats')` gives an object that has the method:
@@ -94,7 +94,7 @@ window.Spec.SeaweedDSL =
     name = args.shift() if typeof args[0] is 'string'
     stubs = args.pop() || {}
     new Spec.MockObject(name, stubs)
-  
+
   # Defines the subject of your test.
   #
   # Pass in a definition method which returns an object to be your
@@ -104,7 +104,7 @@ window.Spec.SeaweedDSL =
   # `should` and `shouldNot` methods.
   #
   #     subject -> new Client()
-  #     
+  #
   #     it { should beA Client }
   #
   # Optionally, you can specify a name for your subject as the
@@ -112,7 +112,7 @@ window.Spec.SeaweedDSL =
   # making your tests more readable.
   #
   #     subject 'foo', -> ...
-  #     
+  #
   #     it 'gets prepared' ->
   #       @foo.prepare
   #       should 'bePrepared'
