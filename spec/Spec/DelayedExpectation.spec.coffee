@@ -27,17 +27,21 @@ Spec.describe 'Spec.DelayedExpectation', ->
       @expectation.meet()
       @expectation.met.should == 1
 
-  describe '#check', ->
+  describe '#assert', ->
     given 'test', -> mock 'test'
 
     context 'when expectation has not been met the desired number of times', ->
-      it 'fails the test with a nice error message', ->
-        @test.shouldReceive('fail').with("expected to #{@message} once, actually happened not at all")
-        @expectation.check @test
+      it 'raises an error', ->
+        message = ''
+        try
+          @expectation.assert()
+        catch error
+          message = error.message
+        finally
+          message.should equal "expected to #{@message} once, actually happened not at all"
 
     context 'when expectation has been met the desired number of times', ->
       before -> @expectation.meet()
 
-      it "doesn't fail the test", ->
-        @test.shouldNotReceive 'fail'
-        @expectation.check @test
+      it "does nothing", ->
+        @expectation.assert()

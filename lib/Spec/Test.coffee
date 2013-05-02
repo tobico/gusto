@@ -1,24 +1,21 @@
 class window.Spec.Test
   constructor: (@title, @definition) ->
 
-  run: (root, env) ->
+  run: (env) ->
     report =
       title:  @title
       status: 'passed'
     try
-      @expectations = []
-      root.test = this
       @definition.call env
-      @_assertExpectations()
+      Spec.DelayedExpectation.assert()
     catch error
-      report.status = @_errorStatus(error)
-      report.error  = error.message
-      # report.stack  = printStackTrace()
+      report.status   = @_errorStatus(error)
+      report.error    = error.message
+      report.location = error.fileName + ':' + error.lineNumber
+    finally
+      Spec.DelayedExpectation.reset()
+      Spec.MethodStub.reset()
     report
-
-  _assertExpectations: ->
-    for expectation in @expectations
-      expectation.assert()
 
   _errorStatus: (error) ->
     if error instanceof Spec.PendingError

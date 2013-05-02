@@ -5,6 +5,7 @@
 #= require Spec/SeaweedDSL
 #= require Spec/Matchers
 #= require Spec/MethodStub
+#= require Spec/MethodStub/PossibleCall
 #= require Spec/DelayedExpectation
 #= require Spec/MockObject
 

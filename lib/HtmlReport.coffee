@@ -44,11 +44,12 @@ class window.HtmlReport
   _testReport: (test, title) ->
     '<li class="test-results--test test-results--test--' + test.status + '">' +
       '<div class="test-results--title">' + title + '</div>' +
-      @_errorReport(test.error) + '</li>'
+      @_errorReport(test) + '</li>'
 
-  _errorReport: (error) ->
-    if error?
-      '<div class="test-results--error-message">' + error + '</div>'
+  _errorReport: (test) ->
+    if test.error?
+      '<div class="test-results--error-message" title="' +
+      test.location + '">' + test.error + '</div>'
     else
       ''
 

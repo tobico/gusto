@@ -31,7 +31,7 @@ class window.Spec.Suite
   run: ->
     for test in @tests
       @runBeforeFilters test.env
-      report = test.run(window, test.env)
+      report = test.run(test.env)
       @testReports.push report
       @_updateStatus report.status
       @counts.total   += 1
