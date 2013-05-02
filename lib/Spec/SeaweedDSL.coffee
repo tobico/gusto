@@ -64,7 +64,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> should beAnInstanceOf(Employee)
   should: (matcher) ->
-    expect(@test.env.subject).to matcher
+    expect(@subject).to matcher
 
   # Runs a negative test against @subject
   #
@@ -72,7 +72,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> shouldNot be(null)
   shouldNot: (matcher) ->
-    expect(@test.env.subject).notTo matcher
+    expect(@subject).notTo matcher
 
   # Creates a new mock object
   #
@@ -112,10 +112,11 @@ window.Spec.SeaweedDSL =
   #       should 'bePrepared'
   #
   subject: (args...) ->
+    root = this
     definition = args.pop()
     name = args.pop()
     before ->
-      @subject = definition.call this
+      root.subject = @subject = definition.call this
       @[name] = @subject if name
 
 window.Spec.SeaweedDSL.context = window.Spec.SeaweedDSL.describe

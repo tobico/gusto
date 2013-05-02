@@ -1,12 +1,11 @@
 class window.Spec.Test
   constructor: (@title, @definition) ->
 
-  run: (root, env) ->
+  run: (env) ->
     report =
       title:  @title
       status: 'passed'
     try
-      root.test = this
       @definition.call env
       Spec.DelayedExpectation.assert()
     catch error
