@@ -3,14 +3,6 @@ class window.Spec.Suite
     @beforeFilters  = []
     @suites         = []
     @tests          = []
-    @suiteReports   = []
-    @testReports    = []
-    @counts         =
-      total:    0
-      passed:   0
-      pending:  0
-      failed:   0
-    @status         = 'passed'
 
   load: (root) ->
     root.suite = this
@@ -29,35 +21,12 @@ class window.Spec.Suite
       filter.call env
 
   run: ->
+    report = new Spec.Report(@title)
+
     for test in @tests
       @runBeforeFilters test.env
-      report = test.run(test.env)
-      @testReports.push report
-      @_updateStatus report.status
-      @counts.total   += 1
-      @counts.passed  += 1 if report.status is 'passed'
-      @counts.pending += 1 if report.status is 'pending'
-      @counts.failed  += 1 if report.status is 'failed'
+      report.addSubreport test.run(test.env)
 
     for suite in @suites
-      suite.run()
-      @suiteReports.push suite.report()
-      @_updateStatus suite.status
-      @counts.total   += suite.counts.total
-      @counts.passed  += suite.counts.passed
-      @counts.pending += suite.counts.pending
-      @counts.failed  += suite.counts.failed
-
-  _updateStatus: (status) ->
-    switch status
-      when 'failed'
-        @status = 'failed'
-      when 'pending'
-        @status = 'pending' unless @status is 'failed'
-
-  report: ->
-    title:  @title
-    status: @status
-    counts: @counts
-    tests:  @testReports
-    suites: @suiteReports
+      report.addSubreport suite.run()
+    report

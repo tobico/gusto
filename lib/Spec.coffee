@@ -1,6 +1,7 @@
 #= require Spec/Util
 #= require Spec/Test
 #= require Spec/Suite
+#= require Spec/Report
 #= require Spec/ObjectExtensions
 #= require Spec/SeaweedDSL
 #= require Spec/Matchers
@@ -18,6 +19,7 @@ class window.Spec.ExpectationError
 
 class window.Spec.PendingError
   constructor: (@message) ->
+    @status = Spec.Report.Pending
 
 Spec.Util.extend window.Spec,
   EnvironmentInitialized: false
