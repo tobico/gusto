@@ -12,6 +12,9 @@ class window.Spec.Test
       report.status   = @_errorStatus(error)
       report.error    = error.message
       report.location = error.fileName + ':' + error.lineNumber
+    finally
+      Spec.DelayedExpectation.reset()
+      Spec.MethodStub.reset()
     report
 
   _errorStatus: (error) ->

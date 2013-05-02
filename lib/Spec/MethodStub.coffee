@@ -7,15 +7,25 @@ window.Spec ||= {}
 # These are created using window#stub, window#shouldReceive and
 # window#shouldNotReceive. You shouldn't need to create one manually.
 class window.Spec.MethodStub
+  @stubs: []
+
+  @reset: ->
+    while stub = @stubs.pop()
+      stub.remove()
+
   constructor: (@object, @method) ->
     @possibleCalls = []
     @_replaceMethodOnObject()
+    Spec.MethodStub.stubs.push this
 
   # Makes a new PossibleCall and adds it to the list
   possibleCall: ->
     call = new Spec.MethodStub.PossibleCall(@original)
     @possibleCalls.unshift call
     call
+
+  remove: ->
+    @object[@method] = @original
 
   # Generates a new stub method to inject into the object, and sets the
   # _stub property on it to point back to this MethodStub.

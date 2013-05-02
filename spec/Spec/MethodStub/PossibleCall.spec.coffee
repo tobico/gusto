@@ -22,7 +22,12 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
       @call.return.should be @original
 
   describe '#expect', ->
-    it 'creates an expectation'
+    given 'expectation', -> 'expectation'
+
+    it 'creates an expectation', ->
+      Spec.DelayedExpectation.shouldReceive('add').with('get called').andReturn(@expectation)
+      @call.expect()
+      @call.expectation.should == @expectation
 
   describe '#twice', ->
     given 'expectation', -> mock(twice: null)

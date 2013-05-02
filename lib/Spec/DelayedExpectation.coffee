@@ -18,6 +18,9 @@ class window.Spec.DelayedExpectation
     for expectation in asserting
       expectation.assert()
 
+  @reset: ->
+    @expectations = []
+
   constructor: (@message) ->
     @met      = 0
     @desired  = 1
