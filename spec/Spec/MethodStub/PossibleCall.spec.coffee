@@ -79,7 +79,7 @@ Spec.describe 'Spec.MethodStub.PossibleCall', ->
         @call.with 'lets', 'be', 'awesome'
 
       it 'meets expectation', ->
-        @call.expectation = expectation 'be met'
+        @call.expectation = Spec.DelayedExpectation.add('be met')
         @call.call @object, 'awesomize', ['lets', 'be', 'awesome']
 
       it 'calls the return function with object and arguments, and returns results', ->

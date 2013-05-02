@@ -1,74 +1,45 @@
 Spec.extend Spec.Test
 
 Spec.describe 'Spec.Test', ->
-  given 'ul',         -> mock 'ul', append: null
-  given 'suite',      -> mock 'suite', runBeforeFilters: null
+  given 'title', -> 'is a test test to test tests'
   given 'definition', -> mock 'definition', call: null
-  before -> @suite.ul = @ul
-
-  subject 'test', -> new Spec.Test(@suite, 'test', @definition)
+  subject 'test', -> new Spec.Test(@title, @definition)
 
   describe 'a new test', ->
-    it 'has status of passed', ->
-      @test.status.should equal 'passed'
+    it 'has a title', ->
+      @test.title.should equal @title
 
-    it 'creates an empty object for env', ->
-      @test.env.should == {}
-
-    it 'creates an empty array for expectations', ->
-      @test.env.should == []
+    it 'has a definition', ->
+      @test.definition.should be @definition
 
   describe '#run', ->
-    given 'root', -> mock 'root'
-
-    it 'sets root.test to self before calling definition', ->
-      testInDefinition = null
-
-      @test.definition = =>
-        testInDefinition = @root.test
-
-      @test.run @root
-      testInDefinition.should be @test
-
-    it 'runs ruite before filters on env', ->
-      @suite.shouldReceive('runBeforeFilters').with(@test.env)
-      @test.run @root
+    given 'env', -> {}
 
     it 'calls the definition', ->
       @definition.shouldReceive('call').with(@test.env)
-      @test.run @root
+      @test.run @env
 
-    it 'checks each expectation', ->
-      exp = mock 'expectation'
-      exp.shouldReceive('check')
-      @test.expectations.push exp
-      @test.run @root
-
-    it 'sets root.test to null after calling definition', ->
-      @test.run @root
-      expect(@root.test).to be null
+    it 'gives the definition access to env as "this"', ->
+      @test.definition = -> @foo = 'bar'
+      @test.run @env
+      @env.foo.should == 'bar'
 
     context 'when the test passes', ->
-      it 'reports success'
+      before ->
+        @test.definition = -> 'apples'.should equal 'apples'
 
-    context 'when the test is marked as pending', ->
-      it 'reports pending'
+      it 'reports title and status', ->
+        pending 'work out how to test this'
+        @test.run(@env).should include
+          title:  @title
+          status: 'passed'
 
     context 'when the test fails', ->
-      it 'reports failure'
-      it 'reports full test title'
-      it 'reports error message'
-      it 'reports stack trace'
+      before ->
+        @test.definition = -> 'orange'.should equal 'apples'
 
-  describe '#pending', ->
-    it 'sets the test status to pending', ->
-      @test.pending()
-      @test.status.should equal 'pending'
-
-  describe '#report', ->
-    it 'returns a report hash', ->
-      @test.report().should equal {
-        title:  'test'
-        status: 'passed'
-        error:  null
-      }
+      it 'reports title and status', ->
+        pending 'work out how to test this'
+        @test.run(@env).should include
+          title:  @title
+          status: 'failed'
