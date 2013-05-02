@@ -74,7 +74,7 @@ class window.Spec.MethodStub.PossibleCall
   expect: ->
     # TODO: Make this description better, possibly with name of
     # the method that should have been called
-    @expectation ||= expectation 'get called'
+    @expectation ||= Spec.DelayedExpectation.add('get called')
     this
 
   # Delegates to expectation
@@ -108,7 +108,7 @@ class window.Spec.MethodStub.PossibleCall
     else
       @_failOnInvalidArguments method, args
       null
-  
+
   _arraysMatch: (a, b) ->
     for i in [0..a.length]
       return false if String(a[i]) isnt String(b[i])

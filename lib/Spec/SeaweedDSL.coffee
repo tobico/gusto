@@ -20,12 +20,6 @@ window.Spec.SeaweedDSL =
       result = matcher(object)
       throw new Spec.ExpectationError("expected not #{result[1]}") if result[0]
 
-  # Sets up an expectation
-  expectation: (message) ->
-    exp = new Spec.DelayedExpectation(message)
-    @test.expectations.push exp
-    exp
-
   # Syntactic sugar to create a before method that prepares a variable
   #
   # Example:

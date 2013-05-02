@@ -5,6 +5,19 @@ window.Spec ||= {}
 #
 # To set a delayed expectation use window.expectation
 class window.Spec.DelayedExpectation
+  @expectations: []
+
+  @add: (message) ->
+    exp = new Spec.DelayedExpectation(message)
+    @expectations.push exp
+    exp
+
+  @assert: ->
+    asserting = @expectations
+    @expectations = []
+    for expectation in asserting
+      expectation.assert()
+
   constructor: (@message) ->
     @met      = 0
     @desired  = 1
