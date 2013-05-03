@@ -1,19 +1,15 @@
 class window.Spec.Suite
   constructor: (@parent, @title, @definition) ->
     @beforeFilters  = []
-    @suites         = []
-    @tests          = []
+    @components     = []
 
   load: (root) ->
     root.suite = this
     @definition()
     root.suite = @parent
 
-  addTest: (test) ->
-    @tests.push test
-
-  addSuite: (suite) ->
-    @suites.push suite
+  add: (component) ->
+    @components.push component
 
   runBeforeFilters: (env) ->
     @parent.runBeforeFilters(env) if @parent
@@ -23,11 +19,12 @@ class window.Spec.Suite
   run: ->
     report = new Spec.Report(@title)
 
-    for test in @tests
-      @runBeforeFilters test.env
-      report.addSubreport test.run(test.env)
-
-    for suite in @suites
-      report.addSubreport suite.run()
+    for component in @components
+      if component instanceof Spec.Test
+        env = {}
+        @runBeforeFilters env
+        report.addSubreport component.run(env)
+      else
+        report.addSubreport component.run()
 
     report

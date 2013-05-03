@@ -5,7 +5,7 @@ class window.HtmlReport
   run: ->
     root = new Spec.Suite()
     for suite in Spec.Suites
-      root.addSuite suite
+      root.add suite
 
     @report = root.run()
     @element.innerHTML = @html()

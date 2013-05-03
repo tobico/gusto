@@ -5,7 +5,7 @@ window.Spec.SeaweedDSL =
   describe: (title, definition) ->
     suite = new Spec.Suite(@suite, title, definition)
     suite.load this
-    @suite.addSuite suite if @suite
+    @suite.add suite if @suite
 
   # Adds a setup step to the current test case
   before: (action) ->
@@ -41,7 +41,7 @@ window.Spec.SeaweedDSL =
       when 2
         # Test with manual title
         new Spec.Test(args...)
-    @suite.addTest test if test
+    @suite.add test if test
 
   pending: (message=null) ->
     throw new Spec.PendingError(message)
