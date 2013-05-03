@@ -1,30 +1,30 @@
 class window.Spec.Suite
   constructor: (@parent, @title, @definition) ->
-    @beforeFilters  = []
-    @components     = []
+    @filters      = []
+    @components   = []
 
   load: (root) ->
+    temp = root.suite
     root.suite = this
     @definition()
-    root.suite = @parent
+    root.suite = temp
 
   add: (component) ->
     @components.push component
+
+  filter: (name, definition) ->
+    @filters.push definition
 
   runBeforeFilters: (env) ->
     @parent.runBeforeFilters(env) if @parent
     for filter in @beforeFilters
       filter.call env
 
-  run: ->
+  run: (filters)->
+    allFilters = filters.concat(@filters)
     report = new Spec.Report(@title)
 
     for component in @components
-      if component instanceof Spec.Test
-        env = {}
-        @runBeforeFilters env
-        report.addSubreport component.run(env)
-      else
-        report.addSubreport component.run()
+      report.addSubreport component.run(allFilters)
 
     report

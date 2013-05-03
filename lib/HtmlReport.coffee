@@ -7,7 +7,7 @@ class window.HtmlReport
     for suite in Spec.Suites
       root.add suite
 
-    @report = root.run()
+    @report = root.run([])
     @element.innerHTML = @html()
 
   html: ->

@@ -1,10 +1,12 @@
 class window.Spec.Test
   constructor: (@title, @definition) ->
 
-  run: (env) ->
+  run: (filters) ->
     report = new Spec.Report(@title)
     try
-      @definition.call env
+      env = {}
+      filter.call(env) for filter in filters
+      @definition.call(env)
       Spec.DelayedExpectation.assert()
       report.result Spec.Report.Passed
     catch error

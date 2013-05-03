@@ -9,7 +9,7 @@ window.Spec.SeaweedDSL =
 
   # Adds a setup step to the current test case
   before: (action) ->
-    @suite.beforeFilters.push action
+    @suite.filter null, action
 
   # Allows an assertion on a non-object value
   expect: (object) ->
@@ -25,8 +25,7 @@ window.Spec.SeaweedDSL =
   # Example:
   #     given 'dog', -> new Dog()
   given: (name, definition) ->
-    before ->
-      @[name] = definition.call this
+    @suite.filter name, -> @[name] = definition.call this
 
   # Creates a specificaition
   it: (args...) ->
