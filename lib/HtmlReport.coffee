@@ -6,50 +6,58 @@ class window.HtmlReport
     root = new Spec.Suite()
     for suite in Spec.Suites
       root.addSuite suite
-    root.run()
-    @report = root.report()
+
+    @report = root.run()
     @element.innerHTML = @html()
 
   html: ->
-    @_resultSummary() + @_testResults()
+    @resultSummary(@report) + @testResults(@report)
 
-  _resultSummary: ->
-    html = '<header class="result-summary">'
-    for count in 'total passed pending failed'.split(' ')
-      html += "<div class=\"result-summary--count result-summary--#{count}\">" +
-        "<span class=\"result-summary--label\">#{count.toUpperCase()}</span>" +
-        "<span class=\"result-summary--number\">#{@report.counts[count]}</span>" +
-        '</div>'
-    html + '</header>'
+  resultSummary: (report) ->
+    "
+      <div class=\"result-summary\">
+        #{@resultSummaryCount 'total',    report.counts[0] + report.counts[1] + report.counts[2]}
+        #{@resultSummaryCount 'passed',   report.counts[0]}
+        #{@resultSummaryCount 'pending',  report.counts[1]}
+        #{@resultSummaryCount 'failed',   report.counts[1]}
+      </div>
+    "
 
-  _testResults: ->
-    html = '<section class="test-results"><ul class="test-results--list">'
-    for suite in @report.suites
-      html += @_suiteReport(suite)
-    html + '</ul></section>'
+  resultSummaryCount: (name, count) ->
+    "
+      <div class=\"result-summary--count result-summary--#{name}\">
+        <span class=\"result-summary--label\">#{name.toUpperCase()}</span>
+        <span class=\"result-summary--number\">#{count}</span>
+      </div>
+    "
 
-  _suiteReport: (report) ->
-    if report.counts.total == 1
-      @_testReport report, "#{report.title}: #{report.tests[0].title}"
-    else if report.counts.total > 1
-      html = '<li class="test-results--suite test-results--suite--' + report.status + '">' +
-        '<div class="test-results--title">' + report.title + '</div> '
-      html += '<ul class="test-results--list">'
-      for suite in report.suites
-        html += @_suiteReport(suite)
-      for test in report.tests
-        html += @_testReport(test, test.title)
-      html + '</ul></li>'
+  testResults: (report) ->
+    "
+      <div class=\"test-results\">
+        #{@testResultsReports report.subreports}
+      </div>
+    "
 
-  _testReport: (test, title) ->
-    '<li class="test-results--test test-results--test--' + test.status + '">' +
-      '<div class="test-results--title">' + title + '</div>' +
-      @_errorReport(test) + '</li>'
+  testResultsReports: (reports) ->
+    html = '<ul class=\"test-results--list\">'
+    for report in reports
+      html += @testResultsReport report
+    html + '</ul>'
 
-  _errorReport: (test) ->
-    if test.error?
-      '<div class="test-results--error-message" title="' +
-      test.location + '">' + test.error + '</div>'
-    else
-      ''
+  testResultsReport: (report) ->
+    "
+      <li class=\"test-results--test test-results--test--#{@testResultsStatusClass report.status}\">
+        <div class=\"test-results--title\">#{report.title}</div>
+        #{if report.error then @testResultsErrorReport(report) else ''}
+        #{if report.subreports.length then @testResultsReports(report.subreports) else ''}
+      </li>
+    "
 
+  testResultsErrorReport: (report) ->
+    "<div class=\"test-results--error-message\">#{report.error}</div>"
+
+  testResultsStatusClass: (status) ->
+    switch status
+      when Spec.Report.Passed then 'passed'
+      when Spec.Report.Pending then 'pending'
+      when Spec.Report.Failed then 'failed'

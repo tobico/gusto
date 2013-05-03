@@ -29,4 +29,5 @@ class window.Spec.Suite
 
     for suite in @suites
       report.addSubreport suite.run()
+
     report

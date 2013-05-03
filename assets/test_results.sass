@@ -6,7 +6,7 @@
   margin: 0 0 0 20px
   padding: 0 0 0 10px
 
-.test-results--test, .test-results--suite
+.test-results--test
   position: relative
   margin: 0
   padding: 0
@@ -31,13 +31,13 @@
   white-space:    nowrap
   text-overflow:  ellipsis
 
-.test-results--suite--failed, .test-results--test--failed
+.test-results--test--failed
   background: lighten($red, 45%)
 
-.test-results--suite--pending, .test-results--test--pending
+.test-results--test--pending
   background: lighten($orange, 40%)
 
-.test-results--test:before, .test-results--suite:before
+.test-results--test:before
   content: ''
   position: absolute
   top: -1px
@@ -54,14 +54,14 @@
   color: darken($color, 30%)
   background: lighten($color, 15%)
 
-.test-results--test--failed:before, .test-results--suite--failed:before
+.test-results--test--failed:before
   +gutter-colors($red)
   content: '✘'
 
-.test-results--test--passed:before, .test-results--suite--passed:before
+.test-results--test--passed:before
   +gutter-colors($green)
   content: '✔'
 
-.test-results--test--pending:before, .test-results--suite--pending:before
+.test-results--test--pending:before
   +gutter-colors($orange)
   content: '➤'
