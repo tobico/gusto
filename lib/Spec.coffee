@@ -44,19 +44,7 @@ Spec.Util.extend window.Spec,
   # Extends the environment with test methods
   initializeEnvironment: ->
     @EnvironmentInitialized = true
-
     Spec.Util.extend window, @ObjectExtensions, @Matchers, @SeaweedDSL
-
-    @Format = 'ul'
-    @Format = 'terminal' if location.hash == '#terminal'
-
-    # Add results display element to the page
-    switch @Format
-      when 'ul'
-        $('body').append('<ul class="results"></ul>')
-      when 'terminal'
-        $('body').append('<div class="results"></div>')
-
     @extend Array, Boolean, Date, Element, Function, jQuery, Number, RegExp,
       Spec.MockObject, String
 
