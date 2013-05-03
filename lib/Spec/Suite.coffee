@@ -1,13 +1,15 @@
 class window.Spec.Suite
-  constructor: (@parent, @title, @definition) ->
+  constructor: (@title, @definition) ->
     @filters      = []
     @components   = []
+    @loaded       = false
 
-  load: (root) ->
-    temp = root.suite
-    root.suite = this
-    @definition()
-    root.suite = temp
+  load: ->
+    if @definition
+      window.__spec_definingSuite = this
+      @definition()
+      delete window.__spec_definingSuite
+    @loaded = true
 
   add: (component) ->
     @components.push component
@@ -15,12 +17,8 @@ class window.Spec.Suite
   filter: (name, definition) ->
     @filters.push definition
 
-  runBeforeFilters: (env) ->
-    @parent.runBeforeFilters(env) if @parent
-    for filter in @beforeFilters
-      filter.call env
-
   run: (filters)->
+    @load() unless @loaded
     allFilters = filters.concat(@filters)
     report = new Spec.Report(@title)
 

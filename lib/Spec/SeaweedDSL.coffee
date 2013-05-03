@@ -3,13 +3,11 @@ window.Spec ||= {}
 window.Spec.SeaweedDSL =
   # Prepares a sub-test of the current test case
   describe: (title, definition) ->
-    suite = new Spec.Suite(@suite, title, definition)
-    suite.load this
-    @suite.add suite if @suite
+    @__spec_definingSuite.add new Spec.Suite(title, definition)
 
   # Adds a setup step to the current test case
   before: (action) ->
-    @suite.filter null, action
+    @__spec_definingSuite.filter null, action
 
   # Allows an assertion on a non-object value
   expect: (object) ->
@@ -25,7 +23,7 @@ window.Spec.SeaweedDSL =
   # Example:
   #     given 'dog', -> new Dog()
   given: (name, definition) ->
-    @suite.filter name, -> @[name] = definition.call this
+    @__spec_definingSuite.filter name, -> @[name] = definition.call this
 
   # Creates a specificaition
   it: (args...) ->
@@ -40,7 +38,7 @@ window.Spec.SeaweedDSL =
       when 2
         # Test with manual title
         new Spec.Test(args...)
-    @suite.add test if test
+    @__spec_definingSuite.add test if test
 
   pending: (message=null) ->
     throw new Spec.PendingError(message)

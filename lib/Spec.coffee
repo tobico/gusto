@@ -30,7 +30,7 @@ Spec.Util.extend window.Spec,
   # Executes a test case
   describe: (title, definition) ->
     @initializeEnvironment() unless @EnvironmentInitialized
-    suite = new Spec.Suite(null, title, definition)
+    suite = new Spec.Suite(title, definition)
     suite.load window
     @Suites.push suite
 
