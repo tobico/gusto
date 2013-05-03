@@ -19,7 +19,7 @@ class window.HtmlReport
         #{@resultSummaryCount 'total',    report.counts[0] + report.counts[1] + report.counts[2]}
         #{@resultSummaryCount 'passed',   report.counts[0]}
         #{@resultSummaryCount 'pending',  report.counts[1]}
-        #{@resultSummaryCount 'failed',   report.counts[1]}
+        #{@resultSummaryCount 'failed',   report.counts[2]}
       </div>
     "
 
