@@ -23,7 +23,7 @@ module Seaweed
       # Fetch list of all specification files in specs path
       @scripts = []
       Seaweed.specs.each do |path|
-        Dir["#{Seaweed::PROJECT_ROOT}/#{path}/**/*.spec.coffee"].each do |file|
+        Dir["#{Seaweed::PROJECT_ROOT}/#{path}/**/*spec.coffee"].each do |file|
           @scripts << $1 if file.match Regexp.new("^#{Regexp.escape Seaweed::PROJECT_ROOT}\\/#{Regexp.escape path}\\/(.*).coffee$")
         end
       end
