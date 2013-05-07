@@ -1,6 +1,6 @@
 window.Spec ||= {}
 
-window.Spec.SeaweedDSL = DSL =
+window.Spec.DSL = DSL =
   # Prepares a sub-test of the current test case
   describe: (title, definition) ->
     @__spec_definingSuite.add new Spec.Suite(title, definition)

@@ -3,7 +3,7 @@
 #= require Spec/Suite
 #= require Spec/Report
 #= require Spec/ObjectExtensions
-#= require Spec/SeaweedDSL
+#= require Spec/DSL
 #= require Spec/Matchers
 #= require Spec/MethodStub
 #= require Spec/MethodStub/PossibleCall
@@ -44,7 +44,7 @@ Spec.Util.extend window.Spec,
   # Extends the environment with test methods
   initializeEnvironment: ->
     @EnvironmentInitialized = true
-    Spec.Util.extend window, @ObjectExtensions, @Matchers, @SeaweedDSL
+    Spec.Util.extend window, @ObjectExtensions, @Matchers, @DSL
     @extend Array, Boolean, Date, Element, Function, jQuery, Number, RegExp,
       Spec.MockObject, String
 
@@ -63,4 +63,4 @@ Spec.Util.extend window.Spec,
 
     @_extended.length = 0
 
-    Spec.Util.unextend window, @ObjectExtensions, @Matchers, @SeaweedDSL
+    Spec.Util.unextend window, @ObjectExtensions, @Matchers, @DSL
