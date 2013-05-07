@@ -1,8 +1,8 @@
-# Seaweed - A coffeescript testing framework
+# Gusto - A coffeescript testing framework
 
 ## Overview
 
-Seaweed lets you write behavioral tests for your Coffeescript.
+Gusto lets you write behavioral tests for your Coffeescript.
 It's inspired by rspec, and features a handy command-line spec runner.
 
 ## Comparison
@@ -13,24 +13,24 @@ It's inspired by rspec, and features a handy command-line spec runner.
   * [Evergreen](https://github.com/jnicklas/evergreen)
     -- uses Jasmine and has good Coffeescript support,
     no support for nested file structures
-  * __Seaweed__
+  * __Gusto__
     -- native support for Coffeescript, clean syntax for assertions and stubs,
     no support for plain JavaScript, command-line autotest mode
 
 ## Installation
 
-To install seaweed:
+To install gusto:
 
-    gem install seaweed
+    gem install gusto
 
 ## Project structure
 
-Seaweed expects your Coffeescript source code to be in `.coffee` files,
+Gusto expects your Coffeescript source code to be in `.coffee` files,
 within a `lib` directory, and your specs to be in `.spec.coffee` files
 within a `specs` directory.
 
 You can override these locations by creating a configuration file in
-`seaweed.yml` or `config/seaweed.yml`.
+`gusto.yml` or `config/gusto.yml`.
 
 Here's an example configuration for a Rails project using [barista](https://github.com/Sutto/barista):
 
@@ -42,14 +42,14 @@ Here's an example configuration for a Rails project using [barista](https://gith
 ## Writing Specs
 
 Create a `.spec.coffee` file under `specs` for each test case.
-    
+
     #require ST/Model
-    
+
     Spec.describe "Model", ->
       before ->
         ST.class 'TestModel', 'Model', -> null
         @model = ST.TestModel.create()
-    
+
       describe "#scoped", ->
         it "should return a new scope", ->
           scope = ST.TestModel.scoped()
@@ -67,7 +67,7 @@ before your test runs.
         context 'with a name', ->
           before ->
             @employee = new Employee('Fred')
-          
+
           it "should have a name", ->
             @employee.name.should equal('Fred')
 
@@ -84,7 +84,7 @@ for you to write it later.
 
 #### Untitled Specifications
 
-If you leave out the title from a specification, Seaweed will attempt to
+If you leave out the title from a specification, Gusto will attempt to
 create one using the source code of the specification definition. This works
 better for shorter specs.
 
@@ -101,7 +101,7 @@ and `expect(object).notTo`
 
 ### Extended Objects
 
-By default, Seaweed extends the following objects with methods `.should`,
+By default, Gusto extends the following objects with methods `.should`,
 `.shouldNot`, `.shouldReceive` and `.shouldNotReceive`:
 
   * Array
@@ -131,7 +131,7 @@ object itself.
         @name = name
         this
     Spec.extend Person
-    
+
     eric = new Person('Eric')
     eric.shouldReceive 'spectacles'
     eric.spectacles 'blackRimmed'
@@ -173,7 +173,7 @@ Return a value with `.andReturn`:
 If stubbing over an existing method, you can cause the original method to run in addition using `.andPassthrough`
 
     @car.shouldReceive('brake').andPassthrough()
-    
+
 You can also use `.shouldNotReceive` to assert that a method not be called:
 
     @car.shouldNotReceive('crash')
@@ -204,7 +204,7 @@ nicer to read, and that can automatically generate sensible titles.
 
     describe '#setEngine', ->
       given 'engine', -> new Engine()
-      
+
       it 'should set engine', ->
         @car.setEngine @engine
         @car.getEngine().should be(@engine)
@@ -213,16 +213,16 @@ nicer to read, and that can automatically generate sensible titles.
 
 `subject` sets up a special subject named `@subject`, which is automatically
 used as the object to run assertions on, when not explicitly specified.
-    
+
     Spec.describe 'Car', ->
       subject -> new Car()
-      
+
       it -> should beAnInstanceOf(Car)
-      
+
       describe '#setEngine' ->
         given 'engine', -> new Engine()
         before -> @subject.setEngine @engine
-        
+
         # Automatic title: "should be running"
         it -> should 'beRunning'
 
@@ -232,20 +232,20 @@ used as the object to run assertions on, when not explicitly specified.
 
    Spec.describe 'Car', ->
      subject -> new Car()
-     
+
      describe '#setEngine' ->
        given 'engine', -> new Engine()
        before -> @subject.setEngine @engine
-       
+
        # Automatic title: "engine should be @engine"
        its('getEngine') -> should be(@engine)
-       
+
        # Automatic title: "engine should not be overheated"
        its('getEngine') -> shouldNot 'beOverheated'
 
 ## Requires
 
-Seaweed automatically loads all of your specs, but loads only the lib files
+Gusto automatically loads all of your specs, but loads only the lib files
 that are required, using the [Sprockets library](https://github.com/sstephenson/sprockets).
 
 You specify which files are required to run a script using `#= require`
@@ -258,9 +258,9 @@ processor directives:
 
 ## Spec Runner
 
-Run specs with the `seaweed` command.
+Run specs with the `gusto` command.
 
-    seaweed [options] mode
+    gusto [options] mode
 
 The `auto` mode uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
 
@@ -269,4 +269,4 @@ The `cli` mode lets you run tests only once, for use with continuous integration
 The `server` mode starts only the built in Sinatra server, allowing you to run
 tests manually through your browser of choice.
 
-You can abbreviate modes to their first letter, for example `seaweed s` is the same as `seaweed server`.
+You can abbreviate modes to their first letter, for example `gusto s` is the same as `gusto server`.

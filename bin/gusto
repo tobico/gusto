@@ -6,17 +6,17 @@ require 'optparse'
 options = {}
 parser = OptionParser.new do |o|
   o.banner = "Usage: #{$0} [options] mode\nPossible modes: server, cli, auto"
-  
+
   options[:port] = nil
   o.on '-p', '--port PORT', 'Override server port' do |port|
     options[:port] = port
-  end  
-  
+  end
+
   options[:version] = false
   o.on '-v', '--version', 'Show version' do
     options[:version] = true
   end
-  
+
   o.on_tail '-h', '--help', 'Display this screen' do
     puts o
     exit
@@ -24,5 +24,5 @@ parser = OptionParser.new do |o|
 end
 parser.parse!
 
-require "#{File.dirname(__FILE__)}/../lib/seaweed/runner.rb"
-Seaweed::Runner.new ARGV.first, options, parser
+require "#{File.dirname(__FILE__)}/../lib/gusto/runner.rb"
+Gusto::Runner.new ARGV.first, options, parser

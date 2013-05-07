@@ -4,9 +4,9 @@ require 'sinatra'
 require 'sass'
 require 'slim'
 require 'coffee-script'
-require File.expand_path(File.dirname(__FILE__) + '/../seaweed')
+require File.expand_path(File.dirname(__FILE__) + '/../gusto')
 
-module Seaweed
+module Gusto
   class Server < Sinatra::Application
     # Configure paths
     set :public_folder,   ROOT + '/public'
@@ -22,9 +22,9 @@ module Seaweed
     get "/" do
       # Fetch list of all specification files in specs path
       @scripts = []
-      Seaweed.specs.each do |path|
-        Dir["#{Seaweed::PROJECT_ROOT}/#{path}/**/*spec.coffee"].each do |file|
-          @scripts << $1 if file.match Regexp.new("^#{Regexp.escape Seaweed::PROJECT_ROOT}\\/#{Regexp.escape path}\\/(.*).coffee$")
+      Gusto.specs.each do |path|
+        Dir["#{Gusto::PROJECT_ROOT}/#{path}/**/*spec.coffee"].each do |file|
+          @scripts << $1 if file.match Regexp.new("^#{Regexp.escape Gusto::PROJECT_ROOT}\\/#{Regexp.escape path}\\/(.*).coffee$")
         end
       end
 
