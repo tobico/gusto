@@ -1,7 +1,13 @@
-Spec.extend Spec
+Spec.extend Spec.ExpectationError, Spec.PendingError, Spec
 
-Spec.describe 'Spec.ExpectationError'
-Spec.describe 'Spec.PendingError'
+Spec.describe 'Spec.ExpectationError', ->
+  subject 'error', -> new Spec.ExpectationError()
+  it -> should beAn Error
+
+Spec.describe 'Spec.PendingError', ->
+  subject 'error', -> new Spec.PendingError()
+  it -> should beAn Error
+  its 'status', -> should equal Spec.Report.Pending
 
 Spec.describe 'Spec', ->
   subject 'spec', -> mock()
@@ -23,7 +29,7 @@ Spec.describe 'Spec', ->
       @spec.describe(@title, @definition)
 
     it "doesn't initialize the environment if already initialized", ->
-      @spec.EnvironmentInitialized = true
+      @spec.environmentExtended = true
       @spec.shouldNotReceive('extendEnvironment')
       @spec.describe(@title, @definition)
 
@@ -33,22 +39,55 @@ Spec.describe 'Spec', ->
       @spec.suites[0].should beA Spec.Suite
 
   describe '.extend', ->
+    given 'prototype',  -> {}
+    given 'object',     -> {prototype: @prototype}
+
     before ->
-      @klass          = ->
-      @instance       = new @klass
-      @extensions     = mock(foo: null)
-      @spec.ObjectDSL = @extensions
-      @spec.extend    = Spec.extend
-      @spec._extended = []
-      @spec.extend @klass
+      Spec.extend @object
 
-    it 'records class as extended', ->
-      @spec._extended.should include(@klass)
+    it 'extends object with ObjectDSL', ->
+      for key, value of Spec.ObjectDSL
+        @object[key].should be value
 
-    it 'extends class with ObjectDSL as class methods', ->
-      @klass.foo.should be(@extensions.foo)
+    it 'extends prototype with ObjectDSL', ->
+      for key, value of Spec.ObjectDSL
+        @prototype[key].should be value
 
-    it 'extends class with ObjectDSL as instance methods', ->
-      @instance.foo.should be(@extensions.foo)
+  describe '.extendEnvironment', ->
+    given 'root', -> {}
+    before ->
+      @spec.environmentExtended = false
+      @spec.root = @root
+      @spec.extendEnvironment = Spec.extendEnvironment
 
-  describe '.initializeEnvironment'
+    it 'sets environmentExtended', ->
+      @spec.stub 'extend'
+      @spec.extendEnvironment()
+      @spec.environmentExtended.should equal true
+
+    it 'extends root with DSL', ->
+      @spec.stub 'extend'
+      @spec.extendEnvironment()
+      for key, value of Spec.DSL
+        expect(@root[key]).to be value
+
+    it 'extends root with Matchers', ->
+      @spec.stub 'extend'
+      @spec.extendEnvironment()
+      for key, value of Spec.Matchers
+        expect(@root[key]).to be value
+
+    it 'extends basic set of classes', ->
+      @spec.shouldReceive('extend').with(
+        Array,
+        Boolean,
+        Date,
+        Function,
+        Number,
+        RegExp,
+        String,
+        Element,
+        jQuery,
+        Spec.MockObject
+      )
+      @spec.extendEnvironment()

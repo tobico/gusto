@@ -14,10 +14,10 @@
 
 window.Spec ||= {}
 
-class window.Spec.ExpectationError
+class window.Spec.ExpectationError extends Error
   constructor: (@message) ->
 
-class window.Spec.PendingError
+class window.Spec.PendingError extends Error
   constructor: (@message) ->
     @status = Spec.Report.Pending
 
@@ -42,10 +42,12 @@ Spec.Util.extend window.Spec,
   # Extends the environment with test methods
   extendEnvironment: ->
     @environmentExtended = true
+
     Spec.Util.extend(@root,
       Spec.DSL,
       Spec.Matchers
     )
+
     @extend(
       Array,
       Boolean,

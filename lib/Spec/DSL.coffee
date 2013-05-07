@@ -31,7 +31,7 @@ window.Spec.DSL = DSL =
       when 1
         if typeof args[0] == 'function'
           # Test with automatically generated title
-          new Spec.Test(args[0], Spec.Util.descriptionize(args[1]))
+          new Spec.Test(Spec.Util.descriptionize(args[0]), args[0])
         else
           # Pending test
           new Spec.Test(args[0], -> pending() )
