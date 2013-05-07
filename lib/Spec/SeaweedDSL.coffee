@@ -1,6 +1,6 @@
 window.Spec ||= {}
 
-window.Spec.SeaweedDSL =
+window.Spec.SeaweedDSL = DSL =
   # Prepares a sub-test of the current test case
   describe: (title, definition) ->
     @__spec_definingSuite.add new Spec.Suite(title, definition)
@@ -51,7 +51,7 @@ window.Spec.SeaweedDSL =
   its: (attribute, definition) ->
     root = this
     it "#{attribute} #{Spec.Util.descriptionize definition}", ->
-      root._subject = @subject = Spec.Util.dereference @subject[attribute]
+      root.__spec_subject = @subject = Spec.Util.dereference @subject[attribute]
       definition.call this
 
   # Runs a test against @subject
@@ -60,7 +60,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> should beAnInstanceOf(Employee)
   should: (matcher) ->
-    expect(@_subject).to matcher
+    expect(@__spec_subject).to matcher
 
   # Runs a negative test against @subject
   #
@@ -68,7 +68,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> shouldNot be(null)
   shouldNot: (matcher) ->
-    expect(@_subject).notTo matcher
+    expect(@__spec_subject).notTo matcher
 
   # Creates a new mock object
   #
@@ -112,7 +112,8 @@ window.Spec.SeaweedDSL =
     definition = args.pop()
     name = args.pop()
     before ->
-      root._subject = @subject = definition.call this
+      root.__spec_subject = @subject = definition.call this
       @[name] = @subject if name
 
-window.Spec.SeaweedDSL.context = window.Spec.SeaweedDSL.describe
+DSL.context = DSL.describe
+DSL.specify = DSL.it
