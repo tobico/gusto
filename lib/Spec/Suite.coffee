@@ -8,6 +8,7 @@ class window.Spec.Suite
     if @definition
       window.__spec_definingSuite = this
       @definition()
+
       delete window.__spec_definingSuite
     @loaded = true
 
@@ -21,6 +22,7 @@ class window.Spec.Suite
     @load() unless @loaded
     allFilters = filters.concat(@filters)
     report = new Spec.Report(@title)
+    report.status = Spec.Report.Pending unless @components.length
 
     for component in @components
       report.addSubreport component.run(allFilters)
