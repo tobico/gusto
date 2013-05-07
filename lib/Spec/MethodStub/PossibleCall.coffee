@@ -12,8 +12,8 @@ class window.Spec.MethodStub.PossibleCall
     this
 
   # Provides a return value for this PossibleCall
-  andReturn: (returnValue) ->
-    @return = -> returnValue
+  andReturn: (value) ->
+    @return = Spec.Util.functionize(value)
     this
 
   # Causes this PossibleCall to pass through to the original method on the

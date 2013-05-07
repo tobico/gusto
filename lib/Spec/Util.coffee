@@ -11,26 +11,32 @@ window.Spec.Util =
       for key, value of extension
         delete object[key]
 
+  functionize: (value) ->
+    if typeof value is 'function'
+      value
+    else
+      -> value
+
   # Tries to format definition source code as readable test description
   descriptionize: (definition) ->
     # Get function source code
     definition = String definition
-    
+
     # Remove function boilerplate from beginning
     definition = definition.replace(/^\s*function\s*\([^\)]*\)\s*\{\s*(return\s*)?/, '')
-    
+
     # Remove function boilerplate from end
     definition = definition.replace(/\s*;\s*\}\s*$/, '')
-    
+
     # Replace symbols with whitespace
     definition = definition.replace(/[\s\(\)\{\}_\-\.'";]+/g, ' ')
-    
+
     # Split camelCased terms into seperate words
     definition = definition.replace(/([a-z])([A-Z])/g, (s, a, b) -> "#{a} #{b.toLowerCase()}")
 
     # Replace the word return with "it" (only for functions that are more complex than a simple return)
     definition = definition.replace ' return ', ' it '
-    
+
     $.trim definition
 
   # Returns an HTML representation of any kind of object
