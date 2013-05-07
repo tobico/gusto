@@ -50,9 +50,9 @@ window.Spec.SeaweedDSL =
   #     its 'name', -> should equal('Fred')
   its: (attribute, definition) ->
     it "#{attribute} #{Spec.Util.descriptionize definition}", ->
-      value = @subject[attribute]
-      value = value.call @subject if typeof value is 'function'
-      @subject = value
+      value = @_subject[attribute]
+      value = value.call @_subject if typeof value is 'function'
+      @_subject = value
       definition.call this
 
   # Runs a test against @subject
@@ -61,7 +61,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> should beAnInstanceOf(Employee)
   should: (matcher) ->
-    expect(@subject).to matcher
+    expect(@_subject).to matcher
 
   # Runs a negative test against @subject
   #
@@ -69,7 +69,7 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee()
   #     it -> shouldNot be(null)
   shouldNot: (matcher) ->
-    expect(@subject).notTo matcher
+    expect(@_subject).notTo matcher
 
   # Creates a new mock object
   #
@@ -113,7 +113,7 @@ window.Spec.SeaweedDSL =
     definition = args.pop()
     name = args.pop()
     before ->
-      root.subject = @subject = definition.call this
+      root._subject = @subject = definition.call this
       @[name] = @subject if name
 
 window.Spec.SeaweedDSL.context = window.Spec.SeaweedDSL.describe
