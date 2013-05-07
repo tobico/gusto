@@ -4,7 +4,7 @@ class window.HtmlReport
 
   run: ->
     root = new Spec.Suite()
-    for suite in Spec.Suites
+    for suite in Spec.suites
       root.add suite
 
     @report = root.run([])

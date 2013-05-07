@@ -2,7 +2,7 @@
 #= require Spec/Test
 #= require Spec/Suite
 #= require Spec/Report
-#= require Spec/ObjectExtensions
+#= require Spec/ObjectDSL
 #= require Spec/DSL
 #= require Spec/Matchers
 #= require Spec/MethodStub
@@ -22,45 +22,39 @@ class window.Spec.PendingError
     @status = Spec.Report.Pending
 
 Spec.Util.extend window.Spec,
-  EnvironmentInitialized: false
-  Suites:                 []
-  _extended:              []
-  dsl:                    window
+  environmentExtended:  false
+  suites:               []
+  root:                 window
 
   # Executes a test case
   describe: (title, definition) ->
-    @initializeEnvironment() unless @EnvironmentInitialized
+    @extendEnvironment() unless @environmentExtended
     suite = new Spec.Suite(title, definition)
     suite.load window
-    @Suites.push suite
+    @suites.push suite
 
-  # Extends one or more classes with test methods
-  extend: ->
-    for klass in arguments
-      @_extended.push klass
-      Spec.Util.extend klass, @ObjectExtensions
-      Spec.Util.extend klass.prototype, @ObjectExtensions if klass.prototype
+  # Extends a class or instance with object DSL
+  extend: (objects...) ->
+    for object in objects
+      Spec.Util.extend object, Spec.ObjectDSL
+      Spec.Util.extend object.prototype, Spec.ObjectDSL if object.prototype
 
   # Extends the environment with test methods
-  initializeEnvironment: ->
-    @EnvironmentInitialized = true
-    Spec.Util.extend window, @ObjectExtensions, @Matchers, @DSL
-    @extend Array, Boolean, Date, Element, Function, jQuery, Number, RegExp,
-      Spec.MockObject, String
-
-  # Adds &nbsp; indentation to a string
-  pad: (string, times) ->
-    for i in [1..times]
-      string = '&nbsp;' + string
-    string
-
-  # Cleans test environment initialized with #initializeEnvironment
-  uninitializeEnvironment: ->
-    @EnvironmentInitialized = false
-
-    for klass in @_extended
-      Spec.Util.unextend klass, @ObjectExtensions
-
-    @_extended.length = 0
-
-    Spec.Util.unextend window, @ObjectExtensions, @Matchers, @DSL
+  extendEnvironment: ->
+    @environmentExtended = true
+    Spec.Util.extend(@root,
+      Spec.DSL,
+      Spec.Matchers
+    )
+    @extend(
+      Array,
+      Boolean,
+      Date,
+      Function,
+      Number,
+      RegExp,
+      String,
+      Element,
+      jQuery,
+      Spec.MockObject
+    )

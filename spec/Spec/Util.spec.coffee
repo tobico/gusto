@@ -1,4 +1,9 @@
 Spec.describe 'Spec.Util', ->
+  describe '.extend'
+  describe '.unextend'
+  describe '.reference'
+  describe '.dereference'
+
   describe '.descriptionize', ->
     it 'formats a simple comparison', ->
       fn = -> should equal('foo')
@@ -11,6 +16,8 @@ Spec.describe 'Spec.Util', ->
     it 'formats something complex with logic', ->
       fn = -> should be('monkeys') if foo
       Spec.Util.descriptionize(fn).should equal('if foo it should be monkeys')
+
+  describe '.inspect'
 
   describe '.escape', ->
     it 'escapes text for HTML', ->

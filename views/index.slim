@@ -10,7 +10,6 @@ head
 
 body
   javascript:
-    Spec.initializeEnvironment();
   - @scripts.each do |file_name|
     script type="text/javascript" src="/assets/#{{file_name.sub /\.coffee$/, '.js'}}"
   javascript:

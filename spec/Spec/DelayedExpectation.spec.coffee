@@ -4,6 +4,10 @@ Spec.describe 'Spec.DelayedExpectation', ->
   given   'message',     -> 'foo'
   subject 'expectation', -> new Spec.DelayedExpectation(@message)
 
+  describe '.add'
+  describe '.assert'
+  describe '.reset'
+
   describe 'a new DelayedExpectation', ->
     its 'met',     -> should equal 0
     its 'desired', -> should equal 1

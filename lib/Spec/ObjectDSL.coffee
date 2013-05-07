@@ -1,6 +1,6 @@
 window.Spec ||= {}
 
-window.Spec.ObjectExtensions = 
+window.Spec.ObjectDSL =
   # Stubs a method on object
   stub: (method) ->
     stub = if @[method] && @[method]._stub
