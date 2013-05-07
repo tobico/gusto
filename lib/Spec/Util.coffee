@@ -11,11 +11,17 @@ window.Spec.Util =
       for key, value of extension
         delete object[key]
 
-  functionize: (value) ->
+  reference: (value) ->
     if typeof value is 'function'
       value
     else
       -> value
+
+  dereference: (value, context) ->
+    if typeof value is 'function'
+      value.call context
+    else
+      value
 
   # Tries to format definition source code as readable test description
   descriptionize: (definition) ->

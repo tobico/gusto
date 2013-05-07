@@ -49,10 +49,9 @@ window.Spec.SeaweedDSL =
   #     subject -> new Employee('Fred')
   #     its 'name', -> should equal('Fred')
   its: (attribute, definition) ->
+    root = this
     it "#{attribute} #{Spec.Util.descriptionize definition}", ->
-      value = @_subject[attribute]
-      value = value.call @_subject if typeof value is 'function'
-      @_subject = value
+      root._subject = @subject = Spec.Util.dereference @subject[attribute]
       definition.call this
 
   # Runs a test against @subject
