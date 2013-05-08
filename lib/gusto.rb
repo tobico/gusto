@@ -4,7 +4,7 @@ require 'rubygems'
 require 'sprockets'
 require 'net/http'
 require 'rack'
-require 'yaml'
+require 'json'
 require File.join(File.dirname(__FILE__), 'gusto', 'version')
 
 module Gusto
@@ -12,8 +12,8 @@ module Gusto
   PROJECT_ROOT    = File.expand_path "."
 
   CONFIG_PATHS    = [
-    File.join(PROJECT_ROOT, 'gusto.yml'),
-    File.join(PROJECT_ROOT, 'config', 'gusto.yml')
+    File.join(PROJECT_ROOT, 'gusto.json'),
+    File.join(PROJECT_ROOT, 'config', 'gusto.json')
   ]
 
   @configuration  = {}
@@ -23,13 +23,13 @@ module Gusto
     def load_configuration
       # Set configuration defaults
       @configuration['port']  = 4567
-      @configuration['libs']  = ['lib']
-      @configuration['specs'] = ['spec']
+      @configuration['lib_paths']   = %w(lib)
+      @configuration['spec_paths']  = %w(spec)
 
       # Load custom configuration file
       CONFIG_PATHS.each do |path|
         if File.exists? path
-          @configuration.merge! YAML.load(File.read(path))
+          @configuration.merge! JSON.parse(File.read(path))
           puts "Loaded configuration from “#{path}”"
         end
       end
@@ -48,11 +48,11 @@ module Gusto
     end
 
     def libs
-      @configuration['libs']
+      @configuration['lib_paths']
     end
 
     def specs
-      @configuration['specs']
+      @configuration['spec_paths']
     end
 
     def all_paths

@@ -30,14 +30,21 @@ within a `lib` directory, and your specs to be in `.spec.coffee` files
 within a `specs` directory.
 
 You can override these locations by creating a configuration file in
-`gusto.yml` or `config/gusto.yml`.
+`gusto.json` or `config/gusto.json`.
 
-Here's an example configuration for a Rails project using [barista](https://github.com/Sutto/barista):
+Here's an example configuration for a Rails project using the Rails 3 asset pipeline:
 
-    libs:
-      - app/coffeescripts
-    specs:
-      - spec/coffeescripts
+```json
+{
+  "lib_paths": [
+    "vendor/assets/javascripts",
+    "app/assets/javascripts"
+  ],
+  "spec_paths": [
+    "spec/javascripts"
+  ]
+}
+```
 
 ## Writing Specs
 
