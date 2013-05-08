@@ -8,7 +8,7 @@
 #= require Spec/MethodStub
 #= require Spec/MethodStub/PossibleCall
 #= require Spec/DelayedExpectation
-#= require Spec/MockObject
+#= require Spec/Mock
 
 # Seaweed Coffeescript spec framework
 
@@ -54,7 +54,7 @@ Spec.Util.extend window.Spec,
       @root,
       Element,
       jQuery,
-      Spec.MockObject
+      Spec.Mock
     )
 
     Spec.Util.extend(@root,

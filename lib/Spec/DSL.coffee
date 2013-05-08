@@ -83,7 +83,7 @@ window.Spec.DSL = DSL =
   mock: (args...) ->
     name = args.shift() if typeof args[0] is 'string'
     stubs = args.pop() || {}
-    new Spec.MockObject(name, stubs)
+    new Spec.Mock(name, stubs)
 
   # Defines the subject of your test.
   #

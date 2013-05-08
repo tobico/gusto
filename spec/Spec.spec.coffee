@@ -89,6 +89,6 @@ Spec.describe 'Spec', ->
         @root,
         Element,
         jQuery,
-        Spec.MockObject
+        Spec.Mock
       )
       @spec.extendEnvironment()
