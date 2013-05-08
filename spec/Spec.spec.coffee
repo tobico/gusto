@@ -86,6 +86,7 @@ Spec.describe 'Spec', ->
         Number,
         RegExp,
         String,
+        @root,
         Element,
         jQuery,
         Spec.MockObject

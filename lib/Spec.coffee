@@ -43,11 +43,6 @@ Spec.Util.extend window.Spec,
   extendEnvironment: ->
     @environmentExtended = true
 
-    Spec.Util.extend(@root,
-      Spec.DSL,
-      Spec.Matchers
-    )
-
     @extend(
       Array,
       Boolean,
@@ -56,7 +51,13 @@ Spec.Util.extend window.Spec,
       Number,
       RegExp,
       String,
+      @root,
       Element,
       jQuery,
       Spec.MockObject
+    )
+
+    Spec.Util.extend(@root,
+      Spec.DSL,
+      Spec.Matchers
     )
