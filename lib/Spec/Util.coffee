@@ -6,11 +6,6 @@ window.Spec.Util =
       for key, value of extension
         object[key] = value
 
-  unextend: (object, extensions...) ->
-    for extension in extensions
-      for key, value of extension
-        delete object[key]
-
   reference: (value) ->
     if typeof value is 'function'
       value
@@ -47,17 +42,7 @@ window.Spec.Util =
 
   # Returns an HTML representation of any kind of object
   inspect: (object) ->
-    if object instanceof Array
-      s = '['
-      first = true
-      for item in object
-        if first
-          first = false
-        else
-          first += ', '
-        s += "“#{@escape(String(item))}”"
-      s + ']'
-    else if object is null
+    if object is null
       'null'
     else if object is undefined
       'undefined'
@@ -65,21 +50,20 @@ window.Spec.Util =
       'true'
     else if object is false
       'false'
+    else if object instanceof Array
+      items = for item in object
+        Spec.Util.inspect item
+      "[#{items.join ', '}]"
     else if typeof object == 'object'
-      s = "{"
-      first = true
-      for key of object
+      properties = []
+      for key, value of object
         # Access hasOwnProperty through Object.prototype to work around bug
         # in IE6/7/8 when calling hasOwnProperty on a DOM element
         if Object.prototype.hasOwnProperty.call(object, key)
-          if first
-            first = false
-          else
-            s += ", "
-          s += @escape(key) + ': “' + @escape(String(object[key])) + '”'
-      s + "}"
+          properties.push Spec.Util.escape(key) + ': ' + Spec.Util.inspect(value)
+      "{#{properties.join ', '}}"
     else
-      "“#{@escape(object)}”"
+      "“#{Spec.Util.escape(object)}”"
 
   # Escapes text for HTML
   escape: (string) ->
