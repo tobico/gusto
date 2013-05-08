@@ -12,7 +12,13 @@ Gem::Specification.new do |spec|
   spec.author = "Tobias Cohen"
   spec.email = "me@tobiascohen.com"
 
-  spec.files = ['bin/gusto'] + Dir['lib/**/*'] + Dir['public/*'] + Dir['views/*']
+  spec.files = [
+    Dir['assets/**/*'],
+    ['bin/gusto'],
+    Dir['lib/**/*'],
+    Dir['public/*'],
+    Dir['views/*']
+  ].flatten
   spec.executables = ['gusto']
   spec.add_dependency "coffee-script"
   spec.add_dependency "json"
