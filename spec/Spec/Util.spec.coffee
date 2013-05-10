@@ -13,6 +13,9 @@ Spec.describe 'Spec.Util', ->
       @object.b.should equal true
       @object.c.should equal true
 
+    it 'returns the object', ->
+      expect(Spec.Util.extend(@object, {b: true})).to be @object
+
   describe '.reference', ->
     context 'with a function', ->
       given 'fn', -> (-> 'foo')

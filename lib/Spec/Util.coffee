@@ -5,6 +5,7 @@ window.Spec.Util =
     for extension in extensions
       for key, value of extension
         object[key] = value
+    object
 
   reference: (value) ->
     if typeof value is 'function'

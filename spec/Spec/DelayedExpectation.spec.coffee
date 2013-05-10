@@ -4,9 +4,41 @@ Spec.describe 'Spec.DelayedExpectation', ->
   given   'message',     -> 'foo'
   subject 'expectation', -> new Spec.DelayedExpectation(@message)
 
-  describe '.add'
-  describe '.assert'
-  describe '.reset'
+  context 'class methods', ->
+    subject 'klass', ->
+      Spec.Util.extend {}, Spec.DelayedExpectation, {expectations: []}
+
+    describe '.add', ->
+      given 'add', -> @klass.add @message
+
+      it 'returns a new DelayedExpectation', ->
+        @add.should beA Spec.DelayedExpectation
+
+      it 'adds the new expectation to collection', ->
+        @klass.expectations.length.should == 1
+        @klass.expectations[0].should be @add
+
+    describe '.assert', ->
+      context 'with an expectation', ->
+        given 'expectation', -> @klass.add @message
+
+        before -> @expectation.stub('assert')
+
+        it 'asserts expectation', ->
+          @expectation.shouldReceive('assert')
+          Spec.DelayedExpectation.assert.call @klass
+
+        it 'empties out the collection', ->
+          Spec.DelayedExpectation.assert.call @klass
+          @klass.expectations.should equal []
+
+    describe '.reset', ->
+      context 'with an expectation', ->
+        given 'expectation', -> @klass.add @message
+
+        it 'empties out the collection', ->
+          Spec.DelayedExpectation.reset.call @klass
+          @klass.expectations.should equal []
 
   describe 'a new DelayedExpectation', ->
     its 'met',     -> should equal 0

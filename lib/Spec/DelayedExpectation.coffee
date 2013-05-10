@@ -14,7 +14,7 @@ class window.Spec.DelayedExpectation
 
   @assert: ->
     asserting = @expectations
-    @expectations = []
+    @reset()
     for expectation in asserting
       expectation.assert()
 
