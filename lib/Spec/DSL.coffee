@@ -12,11 +12,11 @@ window.Spec.DSL = DSL =
   # Allows an assertion on a non-object value
   expect: (object) ->
     to: (matcher) ->
-      result = matcher(object)
-      throw new Spec.ExpectationError("expected #{result[1]}") unless result[0]
+      match = matcher(object)
+      throw new Spec.ExpectationError("expected #{match.description}") unless match.result
     notTo: (matcher) ->
-      result = matcher(object)
-      throw new Spec.ExpectationError("expected not #{result[1]}") if result[0]
+      match = matcher(object)
+      throw new Spec.ExpectationError("expected not #{match.description}") if match.result
 
   # Syntactic sugar to create a before method that prepares a variable
   #
