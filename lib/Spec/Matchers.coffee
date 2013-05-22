@@ -74,6 +74,6 @@ window.Spec.Matchers =
   _beAnInstanceOf: (klass) ->
     (value) ->
       result:      value instanceof klass
-      description: "to be an instance of “#{klass}”"
+      description: "#{value} to be an instance of “#{klass.name || klass}”, actually “#{Spec.Util.inspectClass value}"
 
 window.Spec.Matchers.beAn = window.Spec.Matchers.beA

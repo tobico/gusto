@@ -9,14 +9,28 @@ window.Spec.DSL = DSL =
   before: (action) ->
     @__spec_definingSuite.filter null, action
 
-  # Allows an assertion on a non-object value
+  # Sets up an expected result for this test
   expect: (object) ->
+    # Specifies that the object should receive a positive response from a
+    # matcher function
     to: (matcher) ->
       match = matcher(object)
       throw new Spec.ExpectationError("expected #{match.description}") unless match.result
+
+    # Specifies that the object should receive a negative response
     notTo: (matcher) ->
       match = matcher(object)
       throw new Spec.ExpectationError("expected not #{match.description}") if match.result
+
+    # Sets up a stub on the given method, with a delayed expectation that this
+    # stub method be called
+    toReceive: (method) ->
+      Spec.MethodStub.stub(object, method).expect()
+
+    # Sets up a stub on the given method, with a delayed expectation that this
+    # stub method is never called
+    notToReceive: (method) ->
+      Spec.MethodStub.stub(object, method).expect().never()
 
   # Syntactic sugar to create a before method that prepares a variable
   #

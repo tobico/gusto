@@ -1,10 +1,13 @@
 window.Spec ||= {}
 
 window.Spec.Util =
+  # Extends one object with all properties from one or more other objects.
+  # This differs from extend methods in frameworks like jQuery and Underscore
+  # in that it will not overwrite properties that already exist
   extend: (object, extensions...) ->
     for extension in extensions
       for key, value of extension
-        object[key] = value
+        object[key] ||= value
     object
 
   reference: (value) ->
@@ -65,6 +68,10 @@ window.Spec.Util =
       "{#{properties.join ', '}}"
     else
       "“#{Spec.Util.escape(object)}”"
+
+  # Gets the class name of an object using JavaScript magic
+  inspectClass: (object) ->
+    Object.prototype.toString.call(object).match(/^\[object\s(.*)\]$/)[1]
 
   # Escapes text for HTML
   escape: (string) ->

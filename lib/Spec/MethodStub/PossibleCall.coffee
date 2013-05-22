@@ -32,6 +32,11 @@ class window.Spec.MethodStub.PossibleCall
     this
 
   # Delegates to expectation
+  never: ->
+    @expectation.never()
+    this
+
+  # Delegates to expectation
   twice: ->
     @expectation.twice()
     this

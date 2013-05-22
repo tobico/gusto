@@ -25,6 +25,11 @@ class window.Spec.DelayedExpectation
     @met      = 0
     @desired  = 1
 
+  # Specifies that this expectation should not be met
+  never: ->
+    @desired = 0
+    this
+
   # Specifies that this expectation must be met twice to count
   # as a success.
   twice: ->

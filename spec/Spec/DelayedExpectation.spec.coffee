@@ -6,7 +6,10 @@ Spec.describe 'Spec.DelayedExpectation', ->
 
   context 'class methods', ->
     subject 'klass', ->
-      Spec.Util.extend {}, Spec.DelayedExpectation, {expectations: []}
+      # Make a new copy of DelayedExpectation at the class level, so that
+      # expectations that get added to it aren't as part of running these
+      # tests
+      Spec.Util.extend {expectations: []}, Spec.DelayedExpectation
 
     describe '.add', ->
       given 'add', -> @klass.add @message

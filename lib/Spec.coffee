@@ -51,7 +51,6 @@ Spec.Util.extend window.Spec,
       Number,
       RegExp,
       String,
-      @root,
       Element,
       jQuery,
       Spec.Mock
