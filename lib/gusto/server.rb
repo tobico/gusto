@@ -11,16 +11,14 @@ require File.expand_path(File.dirname(__FILE__) + '/../gusto')
 module Gusto
   class Server < Sinatra::Application
     def self.start
-      app = Rack::Builder.app do
-        map '/assets' do
-          run Gusto::Sprockets.environment
-        end
+      Rack::Handler.default.run rack_app, :Port => Configuration.port
+    end
 
-        map '/' do
-          run Gusto::Server
-        end
+    def self.rack_app
+      Rack::Builder.app do
+        map('/assets') { run Sprockets.environment }
+        map('/')       { run Server }
       end
-      Rack::Handler.default.run app, :Port => port
     end
 
     # Configure paths
@@ -35,7 +33,7 @@ module Gusto
     disable :logging
 
     ::Sprockets::Helpers.configure do |config|
-      config.environment = Gusto::Sprockets.environment
+      config.environment = Sprockets.environment
       config.public_path = public_folder
       config.prefix      = assets_prefix
       config.debug       = true

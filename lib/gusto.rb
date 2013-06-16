@@ -46,12 +46,8 @@ module Gusto
       Process.waitall
     end
 
-    def start_server
-      Server.start
-    end
-
     def spawn_server
-      @server = Process.fork{ $0 = 'gusto server'; start_server }
+      @server = Process.fork{ $0 = 'gusto server'; Server.start }
       wait_for_server_at(root_url)
     end
 
