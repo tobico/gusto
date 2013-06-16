@@ -5,8 +5,8 @@ module Gusto
   class Runner
     def load_gusto
       require File.join(File.dirname(__FILE__), '..', 'gusto')
-      Gusto.load_configuration
-      Gusto.port = @port
+      Gusto::Configuration.load
+      Gusto::Configuration.port = @port
     end
 
     def load_gusto_version

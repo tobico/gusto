@@ -13,8 +13,12 @@ module Gusto
       def configure_environment(environment)
         environment.append_path File.join(Gusto.root, 'lib')
         environment.append_path File.join(Gusto.root, 'assets')
-        puts "Using assets in #{Gusto.all_paths.inspect}"
-        Gusto.all_paths.each{ |path| environment.append_path(path) }
+        puts "Using assets in #{all_paths.inspect}"
+        all_paths.each{ |path| environment.append_path(path) }
+      end
+
+      def all_paths
+        Configuration.lib_paths + Configuration.spec_paths
       end
     end
   end

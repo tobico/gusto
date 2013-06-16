@@ -8,9 +8,9 @@ require 'json'
 require File.join(File.dirname(__FILE__), 'gusto', 'version')
 
 module Gusto
-  autoload :Sprockets, File.join(File.dirname(__FILE__), 'gusto', 'sprockets')
-
-  @configuration  = {}
+  autoload :Configuration,  File.join(File.dirname(__FILE__), 'gusto', 'configuration')
+  autoload :Server,         File.join(File.dirname(__FILE__), 'gusto', 'server')
+  autoload :Sprockets,      File.join(File.dirname(__FILE__), 'gusto', 'sprockets')
 
   class << self
     def root
@@ -21,50 +21,8 @@ module Gusto
       File.expand_path "."
     end
 
-    def config_paths
-      [
-        File.join(project_root, 'gusto.json'),
-        File.join(project_root, 'config', 'gusto.json')
-      ]
-    end
-
-    def load_configuration
-      # Set configuration defaults
-      @configuration['port']  = 4567
-      @configuration['lib_paths']   = %w(lib)
-      @configuration['spec_paths']  = %w(spec)
-
-      # Load custom configuration file
-      config_paths.each do |path|
-        if File.exists? path
-          @configuration.merge! JSON.parse(File.read(path))
-          puts "Loaded configuration from “#{path}”"
-        end
-      end
-    end
-
-    def port
-      @configuration['port']
-    end
-
-    def port= value
-      @configuration['port'] = value
-    end
-
     def root_url
-      "http://localhost:#{port}/"
-    end
-
-    def libs
-      @configuration['lib_paths']
-    end
-
-    def specs
-      @configuration['spec_paths']
-    end
-
-    def all_paths
-      libs + specs
+      "http://localhost:#{Configuration.port}/"
     end
 
     def server
@@ -89,18 +47,7 @@ module Gusto
     end
 
     def start_server
-      require File.expand_path(File.dirname(__FILE__) + '/gusto/server')
-
-      app = Rack::Builder.app do
-        map '/assets' do
-          run Sprockets.environment
-        end
-
-        map '/' do
-          run Gusto::Server
-        end
-      end
-      Rack::Handler.default.run app, :Port => port
+      Server.start
     end
 
     def spawn_server
