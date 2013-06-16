@@ -8,17 +8,25 @@ require 'json'
 require File.join(File.dirname(__FILE__), 'gusto', 'version')
 
 module Gusto
-  ROOT            = File.expand_path File.join(File.dirname(__FILE__), '..')
-  PROJECT_ROOT    = File.expand_path "."
-
-  CONFIG_PATHS    = [
-    File.join(PROJECT_ROOT, 'gusto.json'),
-    File.join(PROJECT_ROOT, 'config', 'gusto.json')
-  ]
+  autoload :Sprockets, File.join(File.dirname(__FILE__), 'gusto', 'sprockets')
 
   @configuration  = {}
 
   class << self
+    def root
+      File.expand_path File.join(File.dirname(__FILE__), '..')
+    end
+
+    def project_root
+      File.expand_path "."
+    end
+
+    def config_paths
+      [
+        File.join(project_root, 'gusto.json'),
+        File.join(project_root, 'config', 'gusto.json')
+      ]
+    end
 
     def load_configuration
       # Set configuration defaults
@@ -27,7 +35,7 @@ module Gusto
       @configuration['spec_paths']  = %w(spec)
 
       # Load custom configuration file
-      CONFIG_PATHS.each do |path|
+      config_paths.each do |path|
         if File.exists? path
           @configuration.merge! JSON.parse(File.read(path))
           puts "Loaded configuration from “#{path}”"
@@ -80,21 +88,12 @@ module Gusto
       Process.waitall
     end
 
-    # Prepares a Sprockets::Environment object to serve coffeescript assets
-    def sprockets_environment
-      @environment ||= Sprockets::Environment.new.tap do |environment|
-        environment.append_path File.join(ROOT, 'lib')
-        environment.append_path File.join(ROOT, 'assets')
-        all_paths.each do |path|
-          environment.append_path path
-        end
-      end
-    end
-
     def start_server
+      require File.expand_path(File.dirname(__FILE__) + '/gusto/server')
+
       app = Rack::Builder.app do
         map '/assets' do
-          run Gusto::sprockets_environment
+          run Sprockets.environment
         end
 
         map '/' do
@@ -125,7 +124,7 @@ module Gusto
     def watch_for_changes
       require 'listen'
 
-      @listener = Listen.to(PROJECT_ROOT)
+      @listener = Listen.to(project_root)
 
       # Match .coffee files in any project paths
       @listener.filter Regexp.new('^(' + all_paths.map{ |s| Regexp.escape s}.join('|') + ')\/.*\.coffee$')
@@ -158,5 +157,3 @@ module Gusto
     end
   end
 end
-
-require File.expand_path(File.dirname(__FILE__) + '/gusto/server')
