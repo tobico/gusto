@@ -40,6 +40,10 @@ module Gusto
       def spec_paths
         @data['spec_paths']
       end
+
+      def sprockets_extensions
+        @data['sprockets_extensions']
+      end
     end
   end
 end

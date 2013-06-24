@@ -5,6 +5,7 @@ module Gusto
       def environment
         @environment ||= ::Sprockets::Environment.new.tap do |environment|
           configure_environment(environment)
+          load_sprockets_extensions(environment)
         end
       end
 
@@ -15,6 +16,14 @@ module Gusto
         environment.append_path File.join(Gusto.root, 'assets')
         puts "Using assets in #{all_paths.inspect}"
         all_paths.each{ |path| environment.append_path(path) }
+      end
+
+      def load_sprockets_extensions(environment)
+        if Configuration.sprockets_extensions
+          puts "Loading sprockets extensions from #{Configuration.sprockets_extensions}"
+          extensions = File.read(Configuration.sprockets_extensions)
+          environment.instance_eval extensions
+        end
       end
 
       def all_paths

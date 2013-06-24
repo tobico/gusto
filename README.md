@@ -277,3 +277,19 @@ The `server` mode starts only the built in Sinatra server, allowing you to run
 tests manually through your browser of choice.
 
 You can abbreviate modes to their first letter, for example `gusto s` is the same as `gusto server`.
+
+## Integrating Sprockets libraries such as handlebars_assets
+
+You can provide custom code to run on Gusto's internal Sprockets environment.
+This allows you to load up any other libraries required to compile your
+assets, for example:
+
+    // config/gusto.json
+    {
+        "sprockets_extensions": "config/gusto/sprockets_extensions.rb"
+    }
+
+    # config/gusto/sprockets_extensions.rb
+    puts "Extending Sprockets with HandlebarsAssets"
+    require 'handlebars_assets'
+    append_path HandlebarsAssets.path
