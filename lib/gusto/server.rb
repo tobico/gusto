@@ -49,10 +49,16 @@ module Gusto
       @scripts = []
       Gusto::Configuration.spec_paths.each do |path|
         Dir["#{Gusto.project_root}/#{path}/**/*spec.coffee"].each do |file|
-          @scripts << $1 if file.match Regexp.new("^#{Regexp.escape Gusto.project_root}\\/#{Regexp.escape path}\\/(.*).coffee$")
+          if file.match Regexp.new("^#{Regexp.escape Gusto.project_root}\\/#{Regexp.escape path}\\/(.*).coffee$")
+            @scripts << $1 
+          else
+            raise "Scripts file detected with unexpected path: #{file}"
+          end
         end
       end
-
+      if params[:filter]
+        @scripts = @scripts.select{|file| file.downcase.include? params[:filter].downcase}
+      end
       render :slim, :index
     end
   end

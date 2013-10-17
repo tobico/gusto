@@ -278,6 +278,13 @@ tests manually through your browser of choice.
 
 You can abbreviate modes to their first letter, for example `gusto s` is the same as `gusto server`.
 
+### Running partial suite
+
+When running as a server, you can run part of your test suite by specifying
+a ?filter= paramter in the URL with a keyword to filter spec file names against.
+
+I.e. http://127.0.0.1:4567/?filter=form
+
 ## Integrating Sprockets libraries such as handlebars_assets
 
 You can provide custom code to run on Gusto's internal Sprockets environment.
