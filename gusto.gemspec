@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
     Dir['assets/**/*'],
     ['bin/gusto'],
     Dir['lib/**/*'],
+    Dir['phantom/**/*'],
     Dir['public/*'],
     Dir['views/*']
   ].flatten
