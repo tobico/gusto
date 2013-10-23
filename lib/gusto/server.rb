@@ -59,6 +59,7 @@ module Gusto
       if params[:filter]
         @scripts = @scripts.select{|file| file.downcase.include? params[:filter].downcase}
       end
+      @headless = params[:headless]
       render :slim, :index
     end
   end

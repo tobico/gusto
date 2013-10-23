@@ -11,8 +11,9 @@ head
     == javascript_tag(script) + "\n"
 
 body
-  javascript:
-    $(function() {
-      window.report = new HtmlReport(document.body);
-      report.run();
-    });
+  - unless @headless
+    javascript:
+      $(function() {
+        window.report = new HtmlReport(document.body);
+        report.run();
+      });

@@ -3,11 +3,7 @@ class window.HtmlReport
     @element = element
 
   run: ->
-    root = new Spec.Suite()
-    for suite in Spec.suites
-      root.add suite
-
-    @report = root.run([])
+    @report = (new Spec.RootSuite()).run()
     @element.innerHTML = @html()
 
   html: ->

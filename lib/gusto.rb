@@ -7,10 +7,15 @@ require 'rack'
 require 'json'
 require File.join(File.dirname(__FILE__), 'gusto', 'version')
 
+
 module Gusto
   autoload :Configuration,  File.join(File.dirname(__FILE__), 'gusto', 'configuration')
   autoload :Server,         File.join(File.dirname(__FILE__), 'gusto', 'server')
   autoload :Sprockets,      File.join(File.dirname(__FILE__), 'gusto', 'sprockets')
+  autoload :CliRenderer,    File.join(File.dirname(__FILE__), 'gusto', 'cli_renderer')
+
+  HEADLESS_RUNNER_PATH =    File.realpath(
+    File.join(File.dirname(__FILE__), '..', 'phantom', 'headless_runner.js'))
 
   class << self
     def root
@@ -33,35 +38,36 @@ module Gusto
 
     def cli
       trap_sigint
-      spawn_server
-      result = run_suite
+      spawn_server(quiet: true)
+      result = run_suite?
       shut_down(result ? 0 : 1)
     end
 
     def autotest
       trap_sigint
       spawn_server
-      run_suite
+      run_suite?
       watch_for_changes
       Process.waitall
     end
 
-    def spawn_server
-      @server = Process.fork{ $0 = 'gusto server'; Server.start }
+    def spawn_server(options={})
+      @server = Process.fork do
+        if options[:quiet]
+          $stdout.reopen "/dev/null", "w"
+          $stderr.reopen "/dev/null", "w"
+        end
+        $0 = 'gusto server'
+        Server.start
+      end
       wait_for_server_at(root_url)
     end
 
-    def run_suite
-      if @browser
-        @browser.navigate.refresh
-      else
-        require 'selenium/webdriver'
-        @browser = Selenium::WebDriver.for :firefox, profile: Selenium::WebDriver::Firefox::Profile.new
-        @browser.get "#{root_url}#terminal"
-      end
-      result = @browser[css: '.results'].text
-      puts result
-      !!result.match('passed, 0 failed')
+    def run_suite?
+      json = `phantomjs #{Shellwords.escape HEADLESS_RUNNER_PATH} #{Configuration.port}`
+      report = JSON.parse json
+      puts CliRenderer.new(report).render
+      report['status'] != 2
     end
 
     def watch_for_changes
@@ -93,7 +99,7 @@ module Gusto
     private
 
     def wait_for_server_at(url)
-      page = Net::HTTP.get URI.parse(url)
+      Net::HTTP.get URI.parse(url)
     rescue Errno::ECONNREFUSED
       sleep 1
       retry

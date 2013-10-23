@@ -1,6 +1,7 @@
 #= require Spec/Util
 #= require Spec/Test
 #= require Spec/Suite
+#= require Spec/RootSuite
 #= require Spec/Report
 #= require Spec/ObjectDSL
 #= require Spec/DSL
