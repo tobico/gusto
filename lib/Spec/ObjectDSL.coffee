@@ -3,11 +3,7 @@ window.Spec ||= {}
 window.Spec.ObjectDSL =
   # Stubs a method on object
   stub: (method) ->
-    stub = if @[method] && @[method]._stub
-      @[method]._stub
-    else
-      new Spec.MethodStub(this, method)
-    stub.possibleCall()
+    Spec.MethodStub.stub(this, method)
 
   # Tests for a positive match
   should: (matcher) ->
@@ -19,8 +15,8 @@ window.Spec.ObjectDSL =
 
   # Creates a stub method with an expectation
   shouldReceive: (method) ->
-    @stub(method).expect()
+    expect(this).toReceive method
 
   # Creates a stub method, with an expectation of no calls
-  shouldNotReceive: (name) ->
-    @shouldReceive(name).exactly(0).times
+  shouldNotReceive: (method) ->
+    expect(this).notToReceive method

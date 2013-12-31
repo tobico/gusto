@@ -13,6 +13,13 @@ class window.Spec.MethodStub
     while stub = @stubs.pop()
       stub.remove()
 
+  @stub: (object, method) ->
+    stub = if object[method] && object[method]._stub
+      object[method]._stub
+    else
+      new Spec.MethodStub(object, method)
+    stub.possibleCall()
+
   constructor: (@object, @method) ->
     @possibleCalls = []
     @_replaceMethodOnObject()

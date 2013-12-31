@@ -13,16 +13,17 @@ Spec.describe 'Spec.Test', ->
       @test.definition.should be @definition
 
   describe '#run', ->
-    given 'env', -> {}
+    given 'filtersRun', -> false
+    given 'filters', ->
+      [=> @filtersRun = true]
+
+    it 'runs the filters', ->
+      @test.run @filters
+      @filtersRun.should equal true
 
     it 'calls the definition', ->
       @definition.shouldReceive('call').with(@test.env)
-      @test.run @env
-
-    it 'gives the definition access to env as "this"', ->
-      @test.definition = -> @foo = 'bar'
-      @test.run @env
-      @env.foo.should == 'bar'
+      @test.run @filters
 
     context 'when the test passes', ->
       before ->
@@ -30,7 +31,7 @@ Spec.describe 'Spec.Test', ->
 
       it 'reports title and status', ->
         pending 'work out how to test this'
-        @test.run(@env).should include
+        @test.run(@filters).should include
           title:  @title
           status: 'passed'
 
@@ -40,6 +41,6 @@ Spec.describe 'Spec.Test', ->
 
       it 'reports title and status', ->
         pending 'work out how to test this'
-        @test.run(@env).should include
+        @test.run(@filters).should include
           title:  @title
           status: 'failed'

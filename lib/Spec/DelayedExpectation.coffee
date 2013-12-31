@@ -14,7 +14,7 @@ class window.Spec.DelayedExpectation
 
   @assert: ->
     asserting = @expectations
-    @expectations = []
+    @reset()
     for expectation in asserting
       expectation.assert()
 
@@ -24,6 +24,11 @@ class window.Spec.DelayedExpectation
   constructor: (@message) ->
     @met      = 0
     @desired  = 1
+
+  # Specifies that this expectation should not be met
+  never: ->
+    @desired = 0
+    this
 
   # Specifies that this expectation must be met twice to count
   # as a success.
