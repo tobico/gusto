@@ -9,7 +9,7 @@ Spec.describe 'Spec.Matchers', ->
       @be(true)(false).result.should equal false
 
     it 'displays a message with comparison of values', ->
-      @be(true)(false).description.should equal "be true, actual false"
+      @be(true)(false).description().should equal "be true, actual false"
 
   describe 'beA', ->
     subject 'beA', -> Spec.Matchers.beA

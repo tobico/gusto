@@ -5,7 +5,7 @@ window.Spec.Matchers =
   be: (expected) ->
     (value) ->
       result:       value is expected
-      description:  "be #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}"
+      description:  -> "be #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}"
 
   # Tests that value type matches specified class
   beA: (klass) ->
@@ -21,7 +21,7 @@ window.Spec.Matchers =
   equal: (expected) ->
     (value) ->
       result:       String(value) == String(expected)
-      description:  "equal “#{String expected}”, actual “#{String value}” – #{$.trim diffString(String(value), String(expected))}"
+      description:  -> "equal “#{String expected}”, actual “#{String value}” – #{$.trim diffString(String(value), String(expected))}"
 
   # All-purpose inclusion matcher
   include: (expected) ->
@@ -31,7 +31,7 @@ window.Spec.Matchers =
         for test in expected
           match = false unless (value.indexOf && value.indexOf(test) >= 0) || value[test]?
         result:       match
-        description:  "include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}"
+        description:  -> "include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}"
     else if typeof expected == 'object'
       (value) ->
         missing = {}
@@ -42,7 +42,7 @@ window.Spec.Matchers =
               match = false
               missing[test] = expected[test]
         result:       match
-        description:  "include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}, missing #{Spec.Util.inspect missing}"
+        description:  -> "include #{Spec.Util.inspect expected}, actual #{Spec.Util.inspect value}, missing #{Spec.Util.inspect missing}"
     else
       include([expected])
 
@@ -56,10 +56,10 @@ window.Spec.Matchers =
         thrown = e.message
       if thrown
         result:      thrown == message
-        description: "throw an error with message “#{String thrown}”, actual message “#{String message}” – #{$.trim diffString(String(thrown), String(message))}"
+        description: -> "throw an error with message “#{String thrown}”, actual message “#{String message}” – #{$.trim diffString(String(thrown), String(message))}"
       else
         result:      false
-        description: "throw an error with message “#{message}”, no error thrown"
+        description: -> "throw an error with message “#{message}”, no error thrown"
 
   # Tests a value type using typeof, falling back to instanceof if type is an object
   _haveType: (type, klass) ->
@@ -68,12 +68,12 @@ window.Spec.Matchers =
         @_beAnInstanceOf(klass)(value)
       else
         result:       typeof value is type
-        description:  "to have type “#{type}”, actual “#{typeof value}”"
+        description:  -> "to have type “#{type}”, actual “#{typeof value}”"
 
   # Tests if matched value is an instance of class
   _beAnInstanceOf: (klass) ->
     (value) ->
       result:      value instanceof klass
-      description: "#{value} to be an instance of “#{klass.name || klass}”, actually “#{Spec.Util.inspectClass value}"
+      description: -> "#{value} to be an instance of “#{klass.name || klass}”, actually “#{Spec.Util.inspectClass value}"
 
 window.Spec.Matchers.beAn = window.Spec.Matchers.beA

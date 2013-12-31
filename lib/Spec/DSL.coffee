@@ -20,12 +20,12 @@ window.Spec.DSL = DSL =
     # matcher function
     to: (matcher) ->
       match = matcher(object)
-      throw new Spec.ExpectationError("expected #{match.description}") unless match.result
+      throw new Spec.ExpectationError("expected #{match.description()}") unless match.result
 
     # Specifies that the object should receive a negative response
     notTo: (matcher) ->
       match = matcher(object)
-      throw new Spec.ExpectationError("expected not #{match.description}") if match.result
+      throw new Spec.ExpectationError("expected not #{match.description()}") if match.result
 
     # Sets up a stub on the given method, with a delayed expectation that this
     # stub method be called
