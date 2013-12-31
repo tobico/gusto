@@ -9,6 +9,11 @@ window.Spec.DSL = DSL =
   before: (action) ->
     @__spec_definingSuite.filter null, action
 
+  # Sets up a method stub for an object
+  allow: (object) ->
+    toReceive: (method) ->
+      Spec.MethodStub.stub(object, method)
+
   # Sets up an expected result for this test
   expect: (object) ->
     # Specifies that the object should receive a positive response from a
