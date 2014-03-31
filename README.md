@@ -68,7 +68,7 @@ assets, for example:
 
 Create a `.spec.coffee` file under `specs` for each test case.
 
-    #require ST/Model
+    #= require ST/Model
 
     Spec.describe "Model", ->
       before ->
@@ -80,10 +80,11 @@ Create a `.spec.coffee` file under `specs` for each test case.
 
 ### Structuring your specs
 
-`describe` and `context` blocks break up and organize your tests, and `it`
-blocks define individual tests. `before` blocks are run before each `it`
-block in the current `describe` or `context` block, allowing you to do setup
-before your test runs.
+`describe`/`context` blocks break up and organize your tests, and `it`
+blocks define individual tests.
+
+`before` blocks run before any tests in the same context, and give you a place
+to set up the environment for your tests:
 
     Spec.describe 'Employee', ->
       describe '#new', ->
@@ -96,8 +97,7 @@ before your test runs.
 
 ### Expecting behaviour (assertions)
 
-Use `expect` within an `it` block` to specify what you expect to happen, and
-your tests will fail if it doesnt.
+Use `expect` within an `it` block to specify what constitutes success:
 
     it 'is named Lisa', ->
       expect(@user.name).to equal 'Lisa'
@@ -121,15 +121,14 @@ are provided as part of Gusto:
   * `throwError(message)`
     Tests if a function causes an error to be thrown when called.
 
-### Marking specs as pending
+### Marking tests as pending
 
-Leave out the definition, and a specification is marked as pending, ready
-for you to write it later.
+Leave out a tests's definition, and it's marked as pending, ready for you to fill in later
 
     describe '#new', ->
       it "has a name"
 
-You can also put `pending()` at the start of your test to mark it as pending,
+You can also put `pending()` at the start of a test to mark it as pending,
 and optionally provide a description:
 
     it "calculates age and credit rating", ->
