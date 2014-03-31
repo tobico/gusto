@@ -10,8 +10,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../gusto')
 
 module Gusto
   class Server < Sinatra::Application
-    def self.start
-      Rack::Handler.default.run rack_app, :Port => Configuration.port
+    def self.start(host, port)
+      Rack::Handler.default.run rack_app, :Host => host, :Port => port 
     end
 
     def self.rack_app
