@@ -16,7 +16,6 @@
 window.Spec ||= {}
 
 class window.Spec.ExpectationError extends Error
-  constructor: (@message) ->
 
 class window.Spec.PendingError extends Error
   constructor: (@message) ->

@@ -83,9 +83,6 @@ Spec.describe 'Spec.Util', ->
     it 'wraps strings in pretty quotes', ->
       @inspect('foo').should equal '“foo”'
 
-    it 'escapes strings for HTML', ->
-      @inspect('<br>').should equal '“&lt;br&gt;”'
-
     it 'enumerates arrays', ->
       @inspect(['foo', undefined]).should equal "[“foo”, undefined]"
 

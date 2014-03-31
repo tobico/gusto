@@ -41,16 +41,27 @@ class window.HtmlReport
     html + '</ul>'
 
   testResultsReport: (report) ->
-    "
-      <li class=\"test-results--test test-results--test--#{@testResultsStatusClass report.status}\">
-        <div class=\"test-results--title\">#{report.title}</div>
-        #{if report.error then @testResultsErrorReport(report) else ''}
-        #{if report.subreports.length then @testResultsReports(report.subreports) else ''}
-      </li>
-    "
+    html = "<li class=\"test-results--test test-results--test--#{@testResultsStatusClass report.status}\">"
+    html += "<div class=\"test-results--title\">#{report.title}</div>"
+    if report.error
+      html += @testResultsErrorReport(report)
+      if report.status == Spec.Report.Failed
+        html += @testResultsErrorDetails(report)
+    if report.subreports.length
+      html += @testResultsReports(report.subreports)
+    html += "</li>"
+    html
 
   testResultsErrorReport: (report) ->
-    "<div class=\"test-results--error-message\">#{report.error}</div>"
+    "<div class=\"test-results--error-message\">#{Spec.Util.escape report.error}</div>"
+
+  testResultsErrorDetails: (report) ->
+    details = "<div class=\"test-results--error-details\">"
+    details += "<div class=\"test-results--full-error-message\">#{report.htmlMessage || Spec.Util.escape(report.error)}</div>"
+    if report.stack
+      details += "<pre class=\"test-results--stack-trace\">#{Spec.Util.escape report.stack}</pre>"
+    details += "</div>"
+    details
 
   testResultsStatusClass: (status) ->
     switch status

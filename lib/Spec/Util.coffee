@@ -64,10 +64,13 @@ window.Spec.Util =
         # Access hasOwnProperty through Object.prototype to work around bug
         # in IE6/7/8 when calling hasOwnProperty on a DOM element
         if Object.prototype.hasOwnProperty.call(object, key)
-          properties.push Spec.Util.escape(key) + ': ' + Spec.Util.inspect(value)
+          properties.push key + ': ' + Spec.Util.inspect(value)
       "{#{properties.join ', '}}"
     else
-      "“#{Spec.Util.escape(object)}”"
+      "“#{object}”"
+
+  inspectAndEscape: (object) ->
+    @escape @inspect(object)
 
   # Gets the class name of an object using JavaScript magic
   inspectClass: (object) ->

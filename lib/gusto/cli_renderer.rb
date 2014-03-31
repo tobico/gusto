@@ -11,7 +11,7 @@ module Gusto
     end
 
     def render
-      [body, footer].compact.reject(&:empty?).join("\n\n")
+      [body, stack_traces, footer].compact.reject(&:empty?).join("\n\n")
     end
 
     private
@@ -36,6 +36,25 @@ module Gusto
 
     def report_result(report)
       result_color report['status'], report['title']
+    end
+
+    def stack_traces
+      reports = failures_with_stack_traces(root_report['subreports'])
+      reports.each_with_index.map do |report, i|
+        result_color(report['status'], "#{i+1}. #{report['title']}") +
+          "\n\n" + report['stack']
+      end.join("\n\n")
+    end
+
+    def failures_with_stack_traces(reports)
+      collected = []
+      reports.each do |report|
+        collected << report if report['status'] == FAILED && report['stack']
+        if report['subreports']
+          collected += failures_with_stack_traces(report['subreports'])
+        end
+      end
+      collected
     end
 
     def footer

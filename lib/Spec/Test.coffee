@@ -14,7 +14,8 @@ class window.Spec.Test
         error.status || Spec.Report.Failed,
         error.message
       )
-      report.location = error.fileName + ':' + error.lineNumber
+      report.stack            = error.stack
+      report.htmlMessage      = error.htmlMessage
     finally
       Spec.DelayedExpectation.reset()
       Spec.MethodStub.reset()
