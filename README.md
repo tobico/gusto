@@ -3,9 +3,9 @@
 ## Overview
 
 Gusto lets you write behavioral tests for your Coffeescript.
-It's inspired by rspec, and features a handy command-line spec runner.
+It's inspired by rspec, and features an integrated command-line spec runner.
 
-## Comparison
+### Comparison
 
   * [Jasmine](https://github.com/pivotal/jasmine-gem)
     -- integrates well with Rails, limited command-line support,
@@ -17,13 +17,15 @@ It's inspired by rspec, and features a handy command-line spec runner.
     -- native support for Coffeescript, clean syntax for assertions and stubs,
     no support for plain JavaScript, command-line autotest mode
 
-## Installation
+## Setup
+
+### Installation
 
 To install gusto:
 
     gem install gusto
 
-## Project structure
+### Configuration
 
 Gusto expects your Coffeescript source code to be in `.coffee` files,
 within a `lib` directory, and your specs to be in `.spec.coffee` files
@@ -46,7 +48,23 @@ Here's an example configuration for a Rails project using the Rails 3 asset pipe
 }
 ```
 
-## Writing Specs
+### Sprockets extensions
+
+You can provide custom code to run on Gusto's internal Sprockets environment.
+This allows you to load up any other libraries required to compile your
+assets, for example:
+
+    // config/gusto.json
+    {
+        "sprockets_extensions": "config/gusto/sprockets_extensions.rb"
+    }
+
+    # config/gusto/sprockets_extensions.rb
+    puts "Extending Sprockets with HandlebarsAssets"
+    require 'handlebars_assets'
+    append_path HandlebarsAssets.path
+
+## Writing specs
 
 Create a `.spec.coffee` file under `specs` for each test case.
 
@@ -54,15 +72,13 @@ Create a `.spec.coffee` file under `specs` for each test case.
 
     Spec.describe "Model", ->
       before ->
-        ST.class 'TestModel', 'Model', -> null
-        @model = ST.TestModel.create()
+        @model = new Model()
 
       describe "#scoped", ->
-        it "should return a new scope", ->
-          scope = ST.TestModel.scoped()
-          scope.should beAnInstanceOf(ST.Model.Scope)
+        it "returns a new scope", ->
+          expect(@model.scoped()).to beA Scope
 
-### Specifications
+### Structuring your specs
 
 `describe` and `context` blocks break up and organize your tests, and `it`
 blocks define individual tests. `before` blocks are run before each `it`
@@ -75,135 +91,137 @@ before your test runs.
           before ->
             @employee = new Employee('Fred')
 
-          it "should have a name", ->
-            @employee.name.should equal('Fred')
+          it "has a name", ->
+            expect(@employee.name).to equal('Fred')
 
-#### Pending Specifications
+### Expecting behaviour (assertions)
 
-Leave out the definition, and a specification is marked as pending, waiting
-for you to write it later.
+Use `expect` within an `it` block` to specify what you expect to happen, and
+your tests will fail if it doesnt.
 
-    Spec.describe 'Employee', ->
-      describe '#new', ->
-        it "should have a name"
-        it "should have a valid email address"
-        it "should not have any invoices"
+    it 'is named Lisa', ->
+      expect(@user.name).to equal 'Lisa'
 
-#### Untitled Specifications
-
-If you leave out the title from a specification, Gusto will attempt to
-create one using the source code of the specification definition. This works
-better for shorter specs.
-
-    Spec.describe 'Employee', ->
-      # Automatic title: "@employee name should not equal Barry"
-      it -> @employee.name.shouldNot equal('Barry')
-
-### Assertions
-
-Assertions are placed inside an `it` block, and can be made on an extended
-object with `.should` and `.shouldNot`, and on a non-extended object
-(such as null or undefined, or the base object) using `expect(object).to`
-and `expect(object).notTo`
-
-### Extended Objects
-
-By default, Gusto extends the following objects with methods `.should`,
-`.shouldNot`, `.shouldReceive` and `.shouldNotReceive`:
-
-  * Array
-  * Boolean
-  * Date
-  * Function
-  * Number
-  * RegExp
-  * String
-  * Element
-  * jQuery
-  * SpecObject
-
-The base type `Object` is not extended, as this causes a vast number of bugs
-in jQuery.
-
-If you want to create an extended object, you can use the SpecObject class:
-
-    myObject = new SpecObject(name: 'Eric')
-    myObject.should beAnInstanceOf SpecObject
-
-You can also extend your own classes using `Spec.extend`. This extends both
-the class prototype (accessible in instances of the class), and the class
-object itself.
-
-    Person = (name) ->
-        @name = name
-        this
-    Spec.extend Person
-
-    eric = new Person('Eric')
-    eric.shouldReceive 'spectacles'
-    eric.spectacles 'blackRimmed'
+    it 'is not blue', ->
+      expect(@car.color).notTo equal 'Blue'
 
 ### Matchers
 
-Matchers are paired with assertions to define your specs,
-e.g. `bike.color.should equal('red')`
+Matchers define what you can check with an `expect`. The following matchers
+are provided as part of Gusto:
 
   * `equal(expectedValue)`
-    Compares string representations of actual and expected values
+    Tests if values are equal by converting them both to strings and comparing
   * `be(expectedValue)`
-    Directly compares actual value with expected value using `is`
+    Tests if values are identical as-is
   * `beA(class) / beAn(class)`
-    Tests that the value is a kind of the specifed class; for the five primitive JS types (Boolean, Function, Number, String, Object) this uses `haveType`, otherwise it uses `beAnInstanceOf`
-  * `include(values)`
-    Tests if an object or an array includes the specified value(s). (values can be an object, an array, or a single string/boolean/number)
+    Tests that the value is, or inherits from, the specified class
+  * `include(expectedValues)`
+    Tests if an object or an array includes the specified value(s). (expectedValues can be an object, an array, or a single string/boolean/number)
   * `throwError(message)`
     Tests if a function causes an error to be thrown when called.
 
-## Stubs
+### Marking specs as pending
 
-You can stub any method of an extended object using `#shouldReceive`:
+Leave out the definition, and a specification is marked as pending, ready
+for you to write it later.
 
-    Spec.describe "Dog", ->
-      it "should do a trick", ->
-        @dog.shouldReceive 'jump'
-        @dog.giveTreat()
+    describe '#new', ->
+      it "has a name"
 
-Check the arguments passed to stub methods with `.with`:
+You can also put `pending()` at the start of your test to mark it as pending,
+and optionally provide a description:
 
-    @dog.shouldReceive('jump').with(2, 'meters')
+    it "calculates age and credit rating", ->
+      pending("determine credit rating procedure")
+      expect(@customer.ageAndCreditRating()).to equal('42 and excellent')
 
-Return a value with `.andReturn`:
+## Mocking and stubbing
 
-    @dog.shouldReceive('jump').andReturn('woof!')
-    console.log @dog.jump() # 'woof!'
+### Mock objects
 
-If stubbing over an existing method, you can cause the original method to run in addition using `.andPassthrough`
+Create a mock object with `mock`:
 
-    @car.shouldReceive('brake').andPassthrough()
+    @switch = mock('light switch', on: true, off: true)
 
-You can also use `.shouldNotReceive` to assert that a method not be called:
+All arguments are optional.
 
-    @car.shouldNotReceive('crash')
+### Method stubs
 
-## Expectations
+You can stub a method on an object using `allow().toReceive`
 
-`shouldReceive` creates an expectation, and you can create one yourself using `expectation(message)`:
+    it "should do a trick", ->
+      allow(@dog).toReceive 'jump'
+      @dog.giveTreat()
 
-    exp = expectation("callback method called")
-    callback = -> exp.meet()
+You can also require that specific arguments are provided using `.with`:
 
-By default, an expectation raises an error at the end of the block unless it has been met exactly once. You can change this using `.exactly`:
+    allow(@dog).toReceive('jump').with(2, 'meters')
 
-    @bell.shouldReceive('ring').exactly(3).times
+Specify a return a value with `.andReturn`:
 
-The `times` at the end is only there for readability, it shouldn't be called with `()`.
+    allow(@dog).toReceive('jump').andReturn('woof!')
 
-`.shouldNotReceive(name)` is syntactic sugar for `.shouldReceive(name).exactly(0).times`.
+### Expectations
 
-## Neater Tests
+Require that a stub be called using `expect`, and you'll get an error if it
+isn't:
 
-The `given`, `subject`, and `its` methods help you write tests that are even
-nicer to read, and that can automatically generate sensible titles.
+    expect(@dog).toReceive('jump')
+    @dog.jump()
+
+You can also require that a stub not be called:
+  
+    expect(@dog).notToReceive('jump')
+
+Specify that a stub should be called multiple times with `.exactly(n).times`:
+
+    expect(@bell).toReceive('ring').exactly(3).times
+
+When you put an expectation on a method, you override the original method. You can
+keep its existing behaviour with `.andPassthrough`:
+
+    expect(@car).toReceive('brake').andPassthrough()
+
+## Spec Runner
+
+Run specs with the `gusto` command.
+
+    bundle exec gusto [options] mode
+
+The `auto` mode uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
+
+The `cli` mode lets you run tests only once, for use with continuous integration tools.
+
+The `server` mode starts only the built in Sinatra server, allowing you to run
+tests manually through your browser of choice.
+
+You can abbreviate modes to their first letter, for example `gusto s` is the same as `gusto server`.
+
+### Running partial suite
+
+When running as a server, you can run part of your test suite by specifying
+a ?filter= paramter in the URL with a keyword to filter spec file names against.
+
+I.e. http://127.0.0.1:4567/?filter=form
+
+## Requires
+
+Gusto automatically loads all of your specs, but loads only the lib files
+that are required, using the [Sprockets library](https://github.com/sstephenson/sprockets).
+
+You specify which files are required to run a script using `#= require`
+processor directives:
+
+    #= require jquery
+    #= require jquery-ui
+    #= require backbone
+    #= require_tree .
+
+## Writing more expressive tests
+
+Gusto has some more advanced language features you can use to make your tests
+shorter and more expressive.
 
 ### Given
 
@@ -250,53 +268,13 @@ used as the object to run assertions on, when not explicitly specified.
        # Automatic title: "engine should not be overheated"
        its('getEngine') -> shouldNot 'beOverheated'
 
-## Requires
+### Untitled Specifications
 
-Gusto automatically loads all of your specs, but loads only the lib files
-that are required, using the [Sprockets library](https://github.com/sstephenson/sprockets).
+If you leave out the title from a specification, Gusto will attempt to
+create one using the source code of the specification definition. This works
+better for shorter specs.
 
-You specify which files are required to run a script using `#= require`
-processor directives:
+    Spec.describe 'Employee', ->
+      # Automatic title: "@employee name should not equal Barry"
+      it -> @employee.name.shouldNot equal('Barry')
 
-    #= require jquery
-    #= require jquery-ui
-    #= require backbone
-    #= require_tree .
-
-## Spec Runner
-
-Run specs with the `gusto` command.
-
-    gusto [options] mode
-
-The `auto` mode uses [watchr](https://github.com/mynyml/watchr) to monitor files for changes, and automatically reruns your tests when your code changes.
-
-The `cli` mode lets you run tests only once, for use with continuous integration tools.
-
-The `server` mode starts only the built in Sinatra server, allowing you to run
-tests manually through your browser of choice.
-
-You can abbreviate modes to their first letter, for example `gusto s` is the same as `gusto server`.
-
-### Running partial suite
-
-When running as a server, you can run part of your test suite by specifying
-a ?filter= paramter in the URL with a keyword to filter spec file names against.
-
-I.e. http://127.0.0.1:4567/?filter=form
-
-## Integrating Sprockets libraries such as handlebars_assets
-
-You can provide custom code to run on Gusto's internal Sprockets environment.
-This allows you to load up any other libraries required to compile your
-assets, for example:
-
-    // config/gusto.json
-    {
-        "sprockets_extensions": "config/gusto/sprockets_extensions.rb"
-    }
-
-    # config/gusto/sprockets_extensions.rb
-    puts "Extending Sprockets with HandlebarsAssets"
-    require 'handlebars_assets'
-    append_path HandlebarsAssets.path
