@@ -11,7 +11,14 @@ require File.expand_path(File.dirname(__FILE__) + '/../gusto')
 module Gusto
   class Server < Sinatra::Application
     def self.start(host, port)
-      Rack::Handler.default.run rack_app, :Host => host, :Port => port 
+      options = {
+        app:    rack_app,
+        server: 'webrick',
+        Host:   host,
+        Port:   port,
+      }
+      options[:AccessLog] = [] unless Gusto.verbose
+      Rack::Server.start options
     end
 
     def self.rack_app
@@ -30,7 +37,7 @@ module Gusto
     Slim::Engine.set_default_options :pretty => true
 
     # Hide redundant log messages
-    disable :logging
+    # disable :logging
 
     ::Sprockets::Helpers.configure do |config|
       config.environment = Sprockets.environment
@@ -45,6 +52,8 @@ module Gusto
 
     # Processes request for page index
     get "/" do
+      Gusto.logger.debug{ "Rendering index page with params #{params.inspect}" }
+
       # Fetch list of all specification files in specs path
       @scripts = []
       Gusto::Configuration.spec_paths.each do |path|
@@ -61,6 +70,10 @@ module Gusto
       end
       @headless = params[:headless]
       render :slim, :index
+    end
+
+    get "/health_check" do
+      status 200
     end
   end
 end

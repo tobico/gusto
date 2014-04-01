@@ -3,11 +3,10 @@ require 'timeout'
 
 module Gusto
   class ServerSpawner
-    attr :port, :quiet
+    attr :port
     
     def initialize(options={})
       @port = options[:port]
-      @quiet = options.fetch(:quiet, false)
     end
 
     def host
@@ -16,16 +15,17 @@ module Gusto
 
     def spawn
       choose_open_port
+      Gusto.logger.info{ "Starting Gusto server on port #{port}" }
       @server = Process.fork do
-        close_std_io if quiet
         self.process_name = "gusto server on #{host}:#{port}"
         start_server
       end
-      wait_for_server_at root_url
+      wait_for_server_at health_check_url
+      Gusto.logger.info{ "Gusto server ready at #{root_url}" }
     end
 
-    def terminate
-      Process.kill 'TERM', @server if @server
+    def stop
+      Process.kill 'INT', @server if @server
     end
 
     private
@@ -35,11 +35,6 @@ module Gusto
         puts "Port #{port} is busy, trying #{port + 1} instead"
         @port += 1
       end
-    end
-
-    def close_std_io
-      $stdout.reopen "/dev/null", "w"
-      $stderr.reopen "/dev/null", "w"
     end
 
     def process_name=(name)
@@ -54,11 +49,19 @@ module Gusto
       "http://#{host}:#{port}/"
     end
 
+    def health_check_url
+      "#{root_url}health_check"
+    end
+
     def wait_for_server_at(url)
-      Net::HTTP.get URI.parse(url)
-    rescue Errno::ECONNREFUSED
-      sleep 1
-      retry
+      Gusto.logger.debug{ "Waiting for server to respond" }
+      begin
+        Net::HTTP.get URI.parse(url)
+      rescue Errno::ECONNREFUSED
+        Gusto.logger.debug{ "Server not responding, retrying" }
+        sleep 1
+        retry
+      end
     end
 
     def port_open?(port)

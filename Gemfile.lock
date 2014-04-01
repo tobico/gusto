@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gusto (1.0.0.beta14)
+    gusto (1.0.0.beta16)
       coffee-script
       fosl
       json

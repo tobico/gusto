@@ -1,10 +1,10 @@
 # encoding: UTF-8
 
-
 module Gusto
   class Runner
     def load_gusto
       require File.join(File.dirname(__FILE__), '..', 'gusto')
+      Gusto.verbose = @verbose
       Gusto::Configuration.load
       Gusto::Configuration.port = @port
     end
@@ -13,8 +13,9 @@ module Gusto
       require File.join(File.dirname(__FILE__), '..', 'gusto', 'version')
     end
 
-    def initialize mode, options={}, parser=nil
+    def initialize(mode, options={}, parser=nil)
       @port = options[:port] || 4567
+      @verbose = options[:verbose]
 
       if options[:version]
         load_gusto_version
@@ -22,7 +23,6 @@ module Gusto
       else
         case mode
           when 's', 'server'
-            puts "Starting gusto server at http://127.0.0.1:#{@port}/"
             load_gusto
             Gusto.server
           when 'c', 'cli'

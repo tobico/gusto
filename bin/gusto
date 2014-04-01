@@ -13,8 +13,13 @@ parser = OptionParser.new do |o|
   end
 
   options[:version] = false
-  o.on '-v', '--version', 'Show version' do
+  o.on '--version', 'Show version' do
     options[:version] = true
+  end
+
+  options[:verbose] = false
+  o.on '-v', 'Verbose' do
+    options[:verbose] = true
   end
 
   o.on_tail '-h', '--help', 'Display this screen' do

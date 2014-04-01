@@ -20,7 +20,7 @@ module Gusto
         paths.each do |path|
           if File.exists? path
             @data.merge! JSON.parse(File.read(path))
-            puts "Loaded configuration from “#{path}”"
+            Gusto.logger.info{ "Loaded configuration from “#{path}”" }
           end
         end
       end

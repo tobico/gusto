@@ -5,8 +5,8 @@ require 'sprockets'
 require 'net/http'
 require 'rack'
 require 'json'
+require 'logger'
 require File.join(File.dirname(__FILE__), 'gusto', 'version')
-
 
 module Gusto
   autoload :Configuration,  File.join(File.dirname(__FILE__), 'gusto', 'configuration')
@@ -19,6 +19,14 @@ module Gusto
     File.join(File.dirname(__FILE__), '..', 'phantom', 'headless_runner.js'))
 
   class << self
+    attr_accessor :verbose
+
+    def logger
+      @logger ||= Logger.new(STDOUT).tap do |logger|
+        logger.level = verbose ? Logger::DEBUG : Logger::INFO
+      end
+    end
+
     def root
       File.expand_path File.join(File.dirname(__FILE__), '..')
     end
@@ -34,7 +42,7 @@ module Gusto
     end
 
     def cli
-      server_spawner(quiet: true).spawn
+      server_spawner.spawn
       result = run_suite?(server_spawner.port)
     ensure
       shut_down(result ? 0 : 1)
@@ -42,24 +50,30 @@ module Gusto
 
     def autotest
       trap_sigint
-      sever_spawner(quie: true).spawn
+      sever_spawner.spawn
       run_suite?(server_spawner.port)
       watch_for_changes
       Process.waitall
     end
 
     def run_suite?(port)
+      Gusto.logger.debug{ "Running test suite with phantomjs" }
       json = `phantomjs #{Shellwords.escape HEADLESS_RUNNER_PATH} #{port}`
+
+      Gusto.logger.debug{ "Parsing JSON response" }
       report = JSON.parse json
+
+      Gusto.logger.debug{ "Rendering test results" }
       puts CliRenderer.new(report).render
+
       report['status'] != 2
     rescue => e
-      puts "Error running test suite: #{e.inspect}"
+      Gusto.logger.error{ "Error running test suite: #{e.inspect}" }
       false
     end
 
-    def server_spawner(quiet: false)
-      @server_spawner ||= ServerSpawner.new(port: Configuration.port, quiet: quiet)
+    def server_spawner
+      @server_spawner ||= ServerSpawner.new(port: Configuration.port)
     end
 
     def watch_for_changes
@@ -77,7 +91,7 @@ module Gusto
     def shut_down(status=0)
       @listener.stop if @listener
       @browser.close if @browser
-      server_spawner.terminate
+      @server_spawner.stop if @server_spawner
       exit status
     end
 
