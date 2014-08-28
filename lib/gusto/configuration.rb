@@ -41,6 +41,10 @@ module Gusto
         @data['spec_paths']
       end
 
+      def cache_path
+        @data['cache_path']
+      end
+
       def sprockets_extensions
         @data['sprockets_extensions']
       end
