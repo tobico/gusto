@@ -12,15 +12,18 @@ module Gusto
       private
 
       def configure_environment(environment)
+        FileUtils.mkdir_p(Configuration.cache_path) unless File.exist?(Configuration.cache_path)
+        environment.cache = ::Sprockets::Cache::FileStore.new(Configuration.cache_path)
+        environment.logger = Gusto.logger
         environment.append_path File.join(Gusto.root, 'lib')
         environment.append_path File.join(Gusto.root, 'assets')
-        puts "Using assets in #{all_paths.inspect}"
+        Gusto.logger.debug { "Using assets in #{all_paths.inspect}" }
         all_paths.each{ |path| environment.append_path(path) }
       end
 
       def load_sprockets_extensions(environment)
         if Configuration.sprockets_extensions
-          puts "Loading sprockets extensions from #{Configuration.sprockets_extensions}"
+          Gusto.logger.debug { "Loading sprockets extensions from #{Configuration.sprockets_extensions}" }
           extensions = File.read(Configuration.sprockets_extensions)
           environment.instance_eval extensions
         end
